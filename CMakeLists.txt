@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(sqlodbc VERSION 0.1 DESCRIPTION "Portable ODBC library and tools" LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 20)
+project(ODBC-Cmd VERSION 0.1 DESCRIPTION "Portable ODBC library and tools" LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 23)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -26,6 +26,7 @@ set(ODBCXX_SOURCES
 add_library(odbc++ SHARED ${ODBCXX_HEADERS} ${ODBCXX_SOURCES})
 target_include_directories(odbc++ PUBLIC "include")
 set_target_properties(odbc++ PROPERTIES MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue" COMPILE_PDB_NAME "odbc++.compile")
+target_compile_features(odbc++ PUBLIC cxx_std_23)
 target_link_libraries(odbc++ PUBLIC local_boost::iostreams)
 
 if(WIN32)
@@ -58,6 +59,8 @@ set(SQLODBC_SOURCES
     "src/dbcmd/HelpCommand.cc"
     "src/dbcmd/DiagnosticRecord.cc")
 
-add_executable(sqlodbc ${SQLODBC_HEADERS} ${SQLODBC_SOURCES})
-target_link_libraries(sqlodbc odbc++)
-set_target_properties(sqlodbc PROPERTIES MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue" COMPILE_PDB_NAME "sqlodbc.compile")
+add_executable(dbcmd ${SQLODBC_HEADERS} ${SQLODBC_SOURCES})
+target_link_libraries(dbcmd odbc++) # boost_iostreams
+target_compile_features(dbcmd PRIVATE cxx_std_23)
+set_target_properties(dbcmd PROPERTIES MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue" COMPILE_PDB_NAME "sqlodbc.compile")
+

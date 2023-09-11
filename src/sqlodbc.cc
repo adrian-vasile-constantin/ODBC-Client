@@ -10,10 +10,14 @@
 #include <cstdlib>
 #include <string>
 #include <exception>
+#include <memory>
 #include <iostream>
 #include <algorithm>
 #include <execution>
 #include <map>
+
+#include <boost/iostreams/stream_buffer.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
 
 #include "odbc++/WindowsCategory.hh"
 #include "odbc++/SQLDiagnosticException.hh"
@@ -26,18 +30,26 @@
 using std::string;
 using std::string_view;
 using std::exception;
+using std::unique_ptr;
 using std::getline;
 using std::istream;
 using std::ostream;
+using std::streambuf;
 using std::clog;
 using std::cin;
 using std::cout;
-using std::cerr;
 using std::clog;
+using std::cerr;
+using std::flush;
 using std::find_if;
 using std::map;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
+
+using enum boost::iostreams::file_descriptor_flags;
+using boost::iostreams::file_descriptor_source;
+using boost::iostreams::file_descriptor_sink;
+using boost::iostreams::stream_buffer;
 
 using odbc::SQLDiagnosticException;
 using odbc::Environment;
@@ -163,10 +175,9 @@ string writePrompt(Context &context)
     return prompt;
 }
 
-int main(int argc, char const *argv[])
+static int runInterpretterLoop(Context &context)
 try
 {
-    Context context;
     string inputLine;
 
     loadHandlers(context, cin, cout, cerr, clog);
@@ -174,7 +185,10 @@ try
     while (cin.good())
     {
 	if (context.interactive)
+	{
 	    cout << "ODBC:" << writePrompt(context) << '>';
+	    clog << flush;
+	}
 
 	getline(cin, inputLine);
 
@@ -184,18 +198,71 @@ try
 	    break;
     }
 
-    if (cin.bad() || cin.fail() && !cin.eof())
-	return EXIT_FAILURE;
-
     return EXIT_SUCCESS;
 }
 catch (exception const &ex)
 {
     clog << "Application error: " << ex.what() << '\n';
+
     return EXIT_FAILURE;
 }
 catch (...)
 {
     clog << "Application error!\nTerminated!\n";
+
+    return EXIT_FAILURE;
+}
+
+int main(int argc, char const *argv[])
+try
+{
+    Context context;
+
+    file_descriptor_source inputDescriptor { Context::nativeStandardInput(), never_close_handle };
+    file_descriptor_sink
+	outputDescriptor { Context::nativeStandardOutput(), never_close_handle },
+	errorDescriptor  { Context::nativeStandardError(), never_close_handle };
+
+    auto inputStreamBuffer = stream_buffer { inputDescriptor };
+    auto outputStreamBuffer = stream_buffer { outputDescriptor };
+    auto errorStreamBuffer = stream_buffer { errorDescriptor };
+    auto &logStreamBuffer = errorStreamBuffer;
+
+    context.overrideStandardStreamBuffers(inputStreamBuffer, outputStreamBuffer, logStreamBuffer, errorStreamBuffer);
+
+    cin.exceptions(cin.exceptions() | cin.badbit);
+    cout.exceptions(cout.exceptions() | cout.badbit);
+    clog.exceptions(clog.exceptions() | clog.badbit);
+    cerr.exceptions(cerr.exceptions() | cerr.badbit);
+
+    int exitCode = runInterpretterLoop(context);
+
+    if (cin.bad() || cin.fail() && !cin.eof())
+	return EXIT_FAILURE;
+
+    return exitCode;
+}
+catch (exception const &ex)
+{
+    try
+    {
+	clog << "Application error: " << ex.what() << '\n';
+    }
+    catch (...)
+    {
+    }
+
+    return EXIT_FAILURE;
+}
+catch (...)
+{
+    try
+    {
+	clog << "Application error!\nTerminated!\n";
+    }
+    catch (...)
+    {
+    }
+
     return EXIT_FAILURE;
 }

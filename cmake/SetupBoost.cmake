@@ -33,11 +33,11 @@ if (Git_FOUND)
 	    list(APPEND LOCAL_BOOST_LIBRARIES "libs/${LIBNAME}")
 	endif()
     endforeach()
-	
+
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/boost/libs/iostreams/include/boost/iostreams/stream_buffer.hpp")
 	list(APPEND LOCAL_BOOST_LIBRARIES "libs/iostreams")
     endif()
-    
+
     if(LOCAL_BOOST_LIBRARIES)
 	execute_process(COMMAND "${GIT_EXECUTABLE}" "-C" "libs/boost" "submodule" "update" "--init" ${LOCAL_BOOST_LIBRARIES}
 	    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -60,6 +60,6 @@ add_library(local_boost_iostreams INTERFACE)
 target_include_directories(local_boost_iostreams INTERFACE "libs/boost/libs/iostreams/include")
 target_compile_definitions(local_boost_iostreams INTERFACE "BOOST_ALL_NO_LIB")
 target_sources(local_boost_iostreams INTERFACE "libs/boost/libs/iostreams/src/file_descriptor.cpp")
-target_link_libraries(local_boost_iostreams INTERFACE ${LOCAL_BOOST_DEPENDENCY_LIBS})  
+target_link_libraries(local_boost_iostreams INTERFACE ${LOCAL_BOOST_DEPENDENCY_LIBS})
 
 add_library(local_boost::iostreams ALIAS local_boost_iostreams)

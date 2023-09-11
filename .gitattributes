@@ -1,0 +1,11 @@
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+*.sh        text eol=lf
+*.cpp       text
+*.hpp       text
+*.cxx       text
+*.hxx       text
+*.cc	    text
+*.hh	    text
+*.c	        text
+*.h	        text
