@@ -2,7 +2,7 @@
 #define DBCMD_CONTEXT_HH
 
 #if defined(_WINDOWS)
-# include <WinDef.h>
+# include <windef.h>
 #endif
 
 #include <cstdint>
@@ -42,6 +42,7 @@ public:
 
     auto overrideStandardStreamBuffers(std::streambuf &cinBuffer, std::streambuf &coutBuffer, std::streambuf &clogBuffer, std::streambuf &cerrBuffer)
 	-> std::streambuf * const (&)[STANDARD_STREAM_COUNT];
+
     auto overrideStandardStreamBuffers(std::wstreambuf &cinBuffer, std::wstreambuf &coutBuffer, std::wstreambuf &clogBuffer, std::wstreambuf &cerrBuffer)
 	-> std::streambuf *const (&)[STANDARD_STREAM_COUNT];
 

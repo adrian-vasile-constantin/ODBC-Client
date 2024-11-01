@@ -2,6 +2,7 @@
 #define DBCMD_COMMAND_BROWSE_CONNECT_HH
 
 #include <memory>
+
 #include "HandlerFunctor.hh"
 #include "CommandHandler.hh"
 

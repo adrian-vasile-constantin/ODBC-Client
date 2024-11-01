@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <string>
 #include <exception>
+#include <system_error>
 #include <memory>
 #include <iostream>
 #include <algorithm>
@@ -17,12 +18,17 @@
 #include <map>
 
 #include <boost/iostreams/stream_buffer.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/newline.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 
 #include "odbc++/WindowsCategory.hh"
 #include "odbc++/SQLDiagnosticException.hh"
 #include "odbc++/Environment.hh"
 #include "odbc++/Connection.hh"
+#include "odbc++/FileDescriptorDevice.hh"
+#include "odbc++/FileDescriptorSource.hh"
+#include "odbc++/FileDescriptorSink.hh"
 
 #include "dbcmd/Context.hh"
 #include "dbcmd/CommandHandler.hh"
@@ -30,6 +36,7 @@
 using std::string;
 using std::string_view;
 using std::exception;
+using std::system_error;
 using std::unique_ptr;
 using std::getline;
 using std::istream;
@@ -46,11 +53,16 @@ using std::map;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
 
-using enum boost::iostreams::file_descriptor_flags;
-using boost::iostreams::file_descriptor_source;
-using boost::iostreams::file_descriptor_sink;
+using boost::iostreams::input;
+using boost::iostreams::output;
 using boost::iostreams::stream_buffer;
+using boost::iostreams::filtering_streambuf;
+using boost::iostreams::newline_filter;
+namespace newline = boost::iostreams::newline;
 
+using Flags = odbc::FileDescriptorDevice::Flags;
+using odbc::FileDescriptorSink;
+using odbc::FileDescriptorSource;
 using odbc::SQLDiagnosticException;
 using odbc::Environment;
 using odbc::Connection;
@@ -200,6 +212,12 @@ try
 
     return EXIT_SUCCESS;
 }
+catch (system_error const &ex)
+{
+    clog << "Application error: " << ex.code().message() << '\n';
+
+    return EXIT_FAILURE;
+}
 catch (exception const &ex)
 {
     clog << "Application error: " << ex.what() << '\n';
@@ -218,15 +236,26 @@ try
 {
     Context context;
 
-    file_descriptor_source inputDescriptor { Context::nativeStandardInput(), never_close_handle };
-    file_descriptor_sink
-	outputDescriptor { Context::nativeStandardOutput(), never_close_handle },
-	errorDescriptor  { Context::nativeStandardError(), never_close_handle };
+    FileDescriptorSource inputDescriptor { Context::nativeStandardInput(), Flags::None };
+    FileDescriptorSink
+	outputDescriptor { Context::nativeStandardOutput(), Flags::None },
+	logDescriptor { Context::nativeStandardError(), Flags::None },
+	errorDescriptor  { Context::nativeStandardError(), Flags::None };
 
-    auto inputStreamBuffer = stream_buffer { inputDescriptor };
-    auto outputStreamBuffer = stream_buffer { outputDescriptor };
-    auto errorStreamBuffer = stream_buffer { errorDescriptor };
-    auto &logStreamBuffer = errorStreamBuffer;
+#if defined(_WINDOWS)
+    constexpr auto targetNewLine = newline::dos;
+#else
+    constexpr auto targetNewLine = newline::posix;
+#endif
+
+    auto inputStreamBuffer = filtering_streambuf<input> { newline_filter { targetNewLine } | inputDescriptor };
+    auto outputStreamBuffer = filtering_streambuf<output> { newline_filter { targetNewLine } | outputDescriptor };
+    auto logStreamBuffer = filtering_streambuf<output> { newline_filter { targetNewLine } | logDescriptor };
+    auto errorStreamBuffer = filtering_streambuf<output> { newline_filter { targetNewLine } | errorDescriptor };
+    // auto inputStreamBuffer = stream_buffer<FileDescriptorSource> { inputDescriptor };
+    // auto outputStreamBuffer = stream_buffer<FileDescriptorSink> {outputDescriptor };
+    // auto errorStreamBuffer = stream_buffer<FileDescriptorSink> { errorDescriptor };
+    
 
     context.overrideStandardStreamBuffers(inputStreamBuffer, outputStreamBuffer, logStreamBuffer, errorStreamBuffer);
 

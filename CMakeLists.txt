@@ -14,7 +14,12 @@ set(ODBCXX_HEADERS
     "include/odbc++/Environment.hh"
     "include/odbc++/Connection.hh"
     "include/odbc++/WindowsCategory.hh"
-    "include/odbc++/FileStreamBuffer.hh")
+    # "include/odbc++/FileStreamBuffer.hh"
+    # "include/odbc++/FileDescriptorDevice.hh"
+    # "include/odbc++/FileDescriptorSink.hh"
+    # "include/odbc++/FileDescriptorSource.hh"
+    # "include/odbc++/FileDescriptor.hh"
+)
 
 set(ODBCXX_SOURCES
     "src/odbc++/Handle.cc"
@@ -44,7 +49,8 @@ set(SQLODBC_HEADERS
     "src/dbcmd/EnvCommand.hh"
     "src/dbcmd/EchoCommand.hh"
     "src/dbcmd/HelpCommand.hh"
-    "src/dbcmd/DiagnosticRecord.hh")
+    "src/dbcmd/DiagnosticRecord.hh"
+    "src/dbcmd/lib/HistoryList.hh")
 
 set(SQLODBC_SOURCES
     "src/sqlodbc.cc"
@@ -57,10 +63,16 @@ set(SQLODBC_SOURCES
     "src/dbcmd/EnvCommand.cc"
     "src/dbcmd/EchoCommand.cc"
     "src/dbcmd/HelpCommand.cc"
-    "src/dbcmd/DiagnosticRecord.cc")
+    "src/dbcmd/DiagnosticRecord.cc"
+    "src/dbcmd/lib/HistoryList.cc")
 
 add_executable(dbcmd ${SQLODBC_HEADERS} ${SQLODBC_SOURCES})
-target_link_libraries(dbcmd odbc++) # boost_iostreams
+target_link_libraries(dbcmd PRIVATE odbc++) # boost_iostreams
 target_compile_features(dbcmd PRIVATE cxx_std_23)
 set_target_properties(dbcmd PROPERTIES MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue" COMPILE_PDB_NAME "sqlodbc.compile")
 
+if(WIN32)
+    find_library(SHELL32_LIBRARY_PATH "Shell32" REQUIRED)
+    target_compile_definitions(dbcmd PRIVATE WINDOWS)
+    target_link_libraries(dbcmd PRIVATE "${SHELL32_LIBRARY_PATH}")
+endif()
