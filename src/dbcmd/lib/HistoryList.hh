@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <boost/iostreams/stream_buffer.hpp>
 #include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filter/newline.hpp>
 #include <ranges>
 #include <filesystem>
 
