@@ -20,7 +20,7 @@
 #include <filesystem>
 #include <ranges>
 
-#include "HistoryList.hh"
+#include "HistoryFile.hh"
 
 using std::unique_ptr;
 using std::distance;
@@ -30,13 +30,14 @@ using std::filesystem::path;
 using std::filesystem::create_directories;
 
 #if defined WINDOWS
-static path HistoryList_AppConfigPath(string_view appName = "ODBC-Cmd")
+
+static auto HistoryList_AppConfigPath(string_view appName = "ODBC-Cmd") -> path
 {
-    static path appConfigPath;
+    static auto appConfigPath = path { };
 
     if (appConfigPath.empty())
     {
-	PWSTR configPath;
+	auto configPath = PWSTR { };
 	auto dwResult = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &configPath);
 
 	if (dwResult == S_OK)
@@ -64,10 +65,10 @@ static path HistoryList_AppConfigPath(string_view appName = "ODBC-Cmd")
 }
 
 #else
-# error Not implemented, use getent() and getenv("HOME")/.config/
+# error Not implemented, use getent() and getenv("HOME")/.config/$appName
 #endif
 
-static path HistoryList_MakeAppConfigPath(path const &file_path)
+static auto HistoryList_MakeAppConfigPath(path const &file_path) -> path
 {
     return distance(file_path.begin(), file_path.end()) > 1 && !file_path.begin()->empty()
 	? file_path
@@ -138,7 +139,7 @@ auto cmd::HistoryList::save() -> void
 
 auto cmd::HistoryList::appendLine(std::string_view line) -> void
 {
-    for (auto const &&[index, historyLine] : lines | std::views::enumerate)
+    for (auto const &&[index, historyLine]: lines | std::views::enumerate)
 	if (historyLine == line)
 	    return appendLine(index + 1u);
 

@@ -67,7 +67,7 @@ using odbc::SQLDiagnosticException;
 using odbc::Environment;
 using odbc::Connection;
 
-static string::const_iterator ScanFirstWord(std::string const &line)
+static auto ScanFirstWord(std::string const &line) -> string::const_iterator
 {
     return find_if(execution::par_unseq, line.begin(), line.end(), [](char ch)
 	{
@@ -75,9 +75,9 @@ static string::const_iterator ScanFirstWord(std::string const &line)
 	});
 }
 
-static map<string, HandlerFunctor *> commandHandlers;
+static auto commandHandlers = map<string, HandlerFunctor *> { };
 
-bool executeCommand(Context &context, string const &inputLine)
+static auto executeCommand(Context &context, string const &inputLine) -> bool
 try
 {
     if (inputLine.empty() || *inputLine.cbegin() == '#')
@@ -122,7 +122,7 @@ catch (exception const &ex)
     return true;
 }
 
-void trimWs(string &inputLine)
+static auto trimWs(string &inputLine) -> void
 {
     auto it = inputLine.begin();
 
@@ -141,20 +141,20 @@ void trimWs(string &inputLine)
 	inputLine.erase(jt.base(), inputLine.end());
 }
 
-static void loadHandlers(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
+static auto loadHandlers(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) -> void
 {
     CommandHandler *handler = CommandHandler::first;
 
     while (handler)
     {
-	for (auto const &commandName : handler->commandNames())
+	for (auto const &commandName: handler->commandNames())
 	    commandHandlers.emplace(commandName, handler->mainFunctor(context, cin, cout, cerr, clog));
 
 	handler = handler->next;
     }
 }
 
-string writePrompt(Context &context)
+static auto writePrompt(Context &context) -> string
 {
     if (context.connections.size() == 1u)
     {
@@ -171,7 +171,7 @@ string writePrompt(Context &context)
 	}
     }
 
-    string prompt;
+    auto prompt = string { };
 
     for (auto const &conn: context.connections)
     {
@@ -187,7 +187,7 @@ string writePrompt(Context &context)
     return prompt;
 }
 
-static int runInterpretterLoop(Context &context)
+static auto runInterpretterLoop(Context &context) -> int
 try
 {
     string inputLine;
@@ -231,18 +231,18 @@ catch (...)
     return EXIT_FAILURE;
 }
 
-int main(int argc, char const *argv[])
+auto main(int argc, char const *argv[]) -> int
 try
 {
     Context context;
 
-    FileDescriptorSource inputDescriptor { Context::nativeStandardInput(), Flags::None };
-    FileDescriptorSink
-	outputDescriptor { Context::nativeStandardOutput(), Flags::None },
-	logDescriptor { Context::nativeStandardError(), Flags::None },
-	errorDescriptor  { Context::nativeStandardError(), Flags::None };
+    auto inputDescriptor = FileDescriptorSource { Context::nativeStandardInput(), Flags::None };
+    auto
+	outputDescriptor = FileDescriptorSink { Context::nativeStandardOutput(), Flags::None },
+	logDescriptor    = FileDescriptorSink { Context::nativeStandardError(), Flags::None },
+	errorDescriptor  = FileDescriptorSink { Context::nativeStandardError(), Flags::None };
 
-#if defined(_WINDOWS)
+#if defined WINDOWS
     constexpr auto targetNewLine = newline::dos;
 #else
     constexpr auto targetNewLine = newline::posix;
@@ -264,7 +264,7 @@ try
     clog.exceptions(clog.exceptions() | clog.badbit);
     cerr.exceptions(cerr.exceptions() | cerr.badbit);
 
-    int exitCode = runInterpretterLoop(context);
+    auto exitCode = runInterpretterLoop(context);
 
     if (cin.bad() || cin.fail() && !cin.eof())
 	return EXIT_FAILURE;
