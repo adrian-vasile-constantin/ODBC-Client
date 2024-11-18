@@ -1,5 +1,5 @@
-#if !defined ODBC_CMD_LIB_HISTORY_LIST_HH
-#define ODBC_CMD_LIB_HISTORY_LIST_HH
+#if !defined ODBC_CMD_LIB_HISTORY_FILE_HH
+#define ODBC_CMD_LIB_HISTORY_FILE_HH
 
 #include <limits>
 #include <memory>
@@ -10,13 +10,16 @@
 #include <iomanip>
 #include <boost/iostreams/stream_buffer.hpp>
 #include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/filter/newline.hpp>
 #include <ranges>
 #include <filesystem>
 
+#include "HistoryList.hh"
+
 namespace cmd
 {
-    class HistoryList
+    class HistoryFile
     {
     protected:
 	using path = std::filesystem::path;
@@ -42,7 +45,7 @@ namespace cmd
 	std::iostream localFile { &file_stream_buffer };
 	std::iostream &historyFile;
 
-	static void defaultTruncate(std::streambuf *stream_buf);
+	static auto defaultTruncate(std::streambuf *stream_buf) -> void;
 	void (*truncate_func)(std::streambuf *stream_buf);
 
 	Container lines;
@@ -51,9 +54,9 @@ namespace cmd
 	auto isDirty() const -> bool;
 
     public:
-	HistoryList(path const &file_path);
-	HistoryList(std::streambuf *stream_buf, void (*truncate_fn)(std::streambuf *stream_buf) = defaultTruncate);
-	HistoryList(std::iostream &file, void (*truncate_fn)(std::streambuf *stream_buf) = defaultTruncate);
+	HistoryFile(path const &file_path);
+	HistoryFile(std::streambuf *stream_buf, void (*truncate_fn)(std::streambuf *stream_buf) = defaultTruncate);
+	HistoryFile(std::iostream &file, void (*truncate_fn)(std::streambuf *stream_buf) = defaultTruncate);
 
 	auto clear() -> void;
 	auto save() -> void;
@@ -65,99 +68,46 @@ namespace cmd
 	auto appendLine(std::string_view line) -> void;
 	auto appendLine(unsigned previousIndex) -> void;
 	auto removeLine(unsigned index) -> void;
-
-	using const_iterator = Container::const_iterator;
-	using const_reverse_iterator = Container::const_reverse_iterator;
-
-	auto begin() const -> const_iterator;
-	auto cbegin() const -> const_iterator;
-	auto rbegin() const -> const_reverse_iterator;
-	auto crbegin() const -> const_reverse_iterator;
-
-	auto end() const -> const_iterator;
-	auto cend() const -> const_iterator;
-	auto rend() const -> const_reverse_iterator;
-	auto crend() const -> const_reverse_iterator;
     };
 }
 
-inline cmd::HistoryList::HistoryList(std::iostream &file, void (*truncate_fn)(std::streambuf *stream_buf)):
+inline cmd::HistoryFile::HistoryFile(std::iostream &file, void (*truncate_fn)(std::streambuf *stream_buf)):
     historyFile(file), truncate_func(truncate_fn)
 {
     file.exceptions(file.exceptions() | file.badbit);
     reload();
 }
 
-inline cmd::HistoryList::HistoryList(std::streambuf *stream_buf, void (*truncate_fn)(std::streambuf *stream_buf)):
+inline cmd::HistoryFile::HistoryFile(std::streambuf *stream_buf, void (*truncate_fn)(std::streambuf *stream_buf)):
     localFile { stream_buf }, historyFile { localFile }, truncate_func(truncate_fn)
 {
     localFile.exceptions(localFile.exceptions() | localFile.badbit);
     reload();
 }
 
-inline auto cmd::HistoryList::isDirty() const -> bool
+inline auto cmd::HistoryFile::isDirty() const -> bool
 {
     return cleanEntriesCount != OUT_OF_RANGE_COUNT;
 }
 
-inline auto cmd::HistoryList::capacity(unsigned newCapacity) -> unsigned
+inline auto cmd::HistoryFile::capacity(unsigned newCapacity) -> unsigned
 {
     return std::exchange(listCapacity, newCapacity);
 }
 
-inline auto cmd::HistoryList::capacity() const -> unsigned
+inline auto cmd::HistoryFile::capacity() const -> unsigned
 {
     return listCapacity;
 }
 
-inline auto cmd::HistoryList::size() const -> unsigned
+inline auto cmd::HistoryFile::size() const -> unsigned
 {
     return static_cast<unsigned>(lines.size());
 }
 
-inline auto cmd::HistoryList::getLine(unsigned lineNumber) const -> std::string const &
+inline auto cmd::HistoryFile::getLine(unsigned lineNumber) const -> std::string const &
 {
     return *lineIndex[lineNumber - 1u].second;
 }
 
-inline auto cmd::HistoryList::begin() const -> const_iterator
-{
-    return lines.begin();
-}
-
-inline auto cmd::HistoryList::cbegin() const -> const_iterator
-{
-    return lines.cbegin();
-}
-
-inline auto cmd::HistoryList::rbegin() const -> const_reverse_iterator
-{
-    return lines.rbegin();
-}
-
-inline auto cmd::HistoryList::crbegin() const -> const_reverse_iterator
-{
-    return lines.crbegin();
-}
-
-inline auto cmd::HistoryList::end() const -> const_iterator
-{
-    return lines.end();
-}
-
-inline auto cmd::HistoryList::cend() const -> const_iterator
-{
-    return lines.cend();
-}
-
-inline auto cmd::HistoryList::rend() const -> const_reverse_iterator
-{
-    return lines.rend();
-}
-
-inline auto cmd::HistoryList::crend() const -> const_reverse_iterator
-{
-    return lines.crend();
-}
-
-#endif	    // !defined ODBC_CMD_LIB_HISTORY_LIST_HH
+#endif	    // !defined ODBC_CMD_LIB_HISTORY_FILE_HH

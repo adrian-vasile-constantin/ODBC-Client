@@ -50,7 +50,9 @@ set(SQLODBC_HEADERS
     "src/dbcmd/EchoCommand.hh"
     "src/dbcmd/HelpCommand.hh"
     "src/dbcmd/DiagnosticRecord.hh"
-    "src/dbcmd/lib/HistoryFile.hh")
+    "src/dbcmd/lib/HistoryList.hh"
+    "src/dbcmd/lib/HistoryFile.hh"
+    "src/dbcmd/lib/HistoryCache.hh")
 
 set(SQLODBC_SOURCES
     "src/sqlodbc.cc"
@@ -64,7 +66,9 @@ set(SQLODBC_SOURCES
     "src/dbcmd/EchoCommand.cc"
     "src/dbcmd/HelpCommand.cc"
     "src/dbcmd/DiagnosticRecord.cc"
-    "src/dbcmd/lib/HistoryFile.cc")
+    "src/dbcmd/lib/HistoryList.cc"
+    "src/dbcmd/lib/HistoryFile.cc"
+    "src/dbcmd/lib/HistoryCache.cc")
 
 add_executable(dbcmd ${SQLODBC_HEADERS} ${SQLODBC_SOURCES})
 target_link_libraries(dbcmd PRIVATE odbc++) # boost_iostreams

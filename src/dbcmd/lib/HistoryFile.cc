@@ -75,7 +75,7 @@ static auto HistoryList_MakeAppConfigPath(path const &file_path) -> path
 	: HistoryList_AppConfigPath() / file_path;
 }
 
-cmd::HistoryList::HistoryList(path const &file_path):
+cmd::HistoryFile::HistoryFile(path const &file_path):
     historyFile(localFile)
 {
     file_stream_buffer.open(HistoryList_MakeAppConfigPath(file_path).string());
@@ -83,7 +83,7 @@ cmd::HistoryList::HistoryList(path const &file_path):
     reload();
 }
 
-auto cmd::HistoryList::clear() -> void
+auto cmd::HistoryFile::clear() -> void
 {
     lines.clear();
     lineIndex.clear();
@@ -93,7 +93,7 @@ auto cmd::HistoryList::clear() -> void
     historyFile.seekp(0, historyFile.beg);
 }
 
-auto cmd::HistoryList::reload() -> void
+auto cmd::HistoryFile::reload() -> void
 {
     clear();
 
@@ -109,14 +109,14 @@ auto cmd::HistoryList::reload() -> void
 	}
 }
 
-auto cmd::HistoryList::defaultTruncate(std::streambuf *stream_buf) -> void
+auto cmd::HistoryFile::defaultTruncate(std::streambuf *stream_buf) -> void
 {
     stream_buf->sputc('\x1A');				// ASCII End-Of-File (char code 26, Ctrl+Z)
     stream_buf->pubsync();
     stream_buf->sputn("", std::streamsize { 0 });	// try to truncate the file
 }
 
-auto cmd::HistoryList::save() -> void
+auto cmd::HistoryFile::save() -> void
 {
     using std::ranges::views::drop;
 
@@ -137,7 +137,7 @@ auto cmd::HistoryList::save() -> void
     }
 }
 
-auto cmd::HistoryList::appendLine(std::string_view line) -> void
+auto cmd::HistoryFile::appendLine(std::string_view line) -> void
 {
     for (auto const &&[index, historyLine]: lines | std::views::enumerate)
 	if (historyLine == line)
@@ -154,7 +154,7 @@ auto cmd::HistoryList::appendLine(std::string_view line) -> void
     );
 }
 
-auto cmd::HistoryList::appendLine(unsigned lineNumber) -> void
+auto cmd::HistoryFile::appendLine(unsigned lineNumber) -> void
 {
     lines.splice(lines.end(), lines, lineIndex[lineNumber - 1u].second);
 
@@ -164,7 +164,7 @@ auto cmd::HistoryList::appendLine(unsigned lineNumber) -> void
     lineIndex.erase(lineIndex.cbegin() + lineNumber - 1u);
 }
 
-auto cmd::HistoryList::removeLine(unsigned lineNumber) -> void
+auto cmd::HistoryFile::removeLine(unsigned lineNumber) -> void
 {
     if (cleanEntriesCount > lineNumber - 1u)
 	cleanEntriesCount = lineNumber - 1u;
