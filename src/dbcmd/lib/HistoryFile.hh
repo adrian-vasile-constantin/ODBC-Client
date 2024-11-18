@@ -1,6 +1,10 @@
 #if !defined ODBC_CMD_LIB_HISTORY_FILE_HH
 #define ODBC_CMD_LIB_HISTORY_FILE_HH
 
+#if defined __INTELLISENSE__
+
+// For MS IntelliSense only
+
 #include <limits>
 #include <memory>
 #include <list>
@@ -71,43 +75,6 @@ namespace cmd
     };
 }
 
-inline cmd::HistoryFile::HistoryFile(std::iostream &file, void (*truncate_fn)(std::streambuf *stream_buf)):
-    historyFile(file), truncate_func(truncate_fn)
-{
-    file.exceptions(file.exceptions() | file.badbit);
-    reload();
-}
-
-inline cmd::HistoryFile::HistoryFile(std::streambuf *stream_buf, void (*truncate_fn)(std::streambuf *stream_buf)):
-    localFile { stream_buf }, historyFile { localFile }, truncate_func(truncate_fn)
-{
-    localFile.exceptions(localFile.exceptions() | localFile.badbit);
-    reload();
-}
-
-inline auto cmd::HistoryFile::isDirty() const -> bool
-{
-    return cleanEntriesCount != OUT_OF_RANGE_COUNT;
-}
-
-inline auto cmd::HistoryFile::capacity(unsigned newCapacity) -> unsigned
-{
-    return std::exchange(listCapacity, newCapacity);
-}
-
-inline auto cmd::HistoryFile::capacity() const -> unsigned
-{
-    return listCapacity;
-}
-
-inline auto cmd::HistoryFile::size() const -> unsigned
-{
-    return static_cast<unsigned>(lines.size());
-}
-
-inline auto cmd::HistoryFile::getLine(unsigned lineNumber) const -> std::string const &
-{
-    return *lineIndex[lineNumber - 1u].second;
-}
+#endif	    // defined __INTELLISENSE__
 
 #endif	    // !defined ODBC_CMD_LIB_HISTORY_FILE_HH
