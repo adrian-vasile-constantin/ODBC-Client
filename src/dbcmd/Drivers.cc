@@ -1,3 +1,5 @@
+module;
+
 #if defined(_WINDOWS)
 # if defined(_M_AMD64) && !defined(_AMD64_)
 #   define _AMD64_
@@ -7,16 +9,42 @@
 # endif
 #endif
 
-#include <set>
-#include <string>
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
-#include <execution>
+#include "intellisense/project_headers.hh"
 
 #include "odbc++/Environment.hh"
 #include "odbc++/Connection.hh"
-#include "Drivers.hh"
+
+export module DriversCommand;
+
+#if !defined MSVC_INTELLISENSE
+import std;
+import Context;
+import CommandHandler;
+#endif
+
+class Drivers: public CommandHandler
+{
+protected:
+    class Functor: public HandlerFunctor
+    {
+    public:
+	using HandlerFunctor::HandlerFunctor;
+	virtual void operator ()(string const &command, string::const_iterator it) override;
+    };
+
+public:
+    virtual set<string> const &commandNames() const override;
+    virtual string const &helpSubject() const override;
+    virtual string const &helpText() const override;
+    virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
+};
+
+inline std::unique_ptr<HandlerFunctor> Drivers::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
+{
+    return std::make_unique<Functor>(*this, context, cin, cout, cerr, clog);
+}
+
+module: private;
 
 using std::set;
 using std::string;

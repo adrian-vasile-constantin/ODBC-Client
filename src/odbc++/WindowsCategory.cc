@@ -12,11 +12,13 @@
 #include <WinBase.h>
 #include <errhandlingapi.h>
 
-#include <cerrno>
-#include <string>
-#include <system_error>
+#include "intellisense/odbcxx_project_headers.hh"
 
 #include "odbc++/WindowsCategory.hh"
+
+#if !defined MSVC_INTELLISENSE
+import std;
+#endif
 
 using std::string;
 using std::to_string;
@@ -240,7 +242,7 @@ error_condition odbc::WindowsCategory::default_error_condition(int ev) const noe
 	return error_condition(error, generic_category());
 }
 
-inline string odbc::WindowsCategory::message(int ev) const
+string odbc::WindowsCategory::message(int ev) const
 {
     class LocalHandle
     {

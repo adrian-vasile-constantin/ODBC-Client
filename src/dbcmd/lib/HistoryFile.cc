@@ -13,30 +13,13 @@ module;
 # include <ShlObj.h>
 #endif
 
-#include <boost/iostreams/stream_buffer.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/filter/newline.hpp>
-
-#if defined __INTELLISENSE__
-
-#include <cstdlib>
-
-#include <memory>
-#include <iterator>
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-#include <ranges>
-
-#include "HistoryFile.hh"
-
-#endif
+#include "intellisense/project_headers.hh"
 
 export module HistoryFile;
 
-#if !defined __INTELLISENSE__
+#if !defined MSVC_INTELLISENSE
 import std;
+import external.boost.iostreams;
 import HistoryList;
 #endif
 
@@ -51,14 +34,14 @@ namespace cmd
 	using Index = std::vector<std::pair<pos_type, Container::const_iterator>>;
 
 	template <typename CharT>
-	using basic_file = boost::iostreams::basic_file<CharT>;
+	    using basic_file = external::boost::iostreams::basic_file<CharT>;
 
 	template
 	    <
 		typename DeviceT,
-		typename TraitsT = boost::iostreams::stream_buffer<DeviceT>::traits_type
+		typename TraitsT = external::boost::iostreams::stream_buffer<DeviceT>::traits_type
 	    >
-	    using stream_buffer = boost::iostreams::stream_buffer<DeviceT, TraitsT>;
+	    using stream_buffer = external::boost::iostreams::stream_buffer<DeviceT, TraitsT>;
 
 	static const auto OUT_OF_RANGE_COUNT = (std::numeric_limits<unsigned>::max)();
 	unsigned listCapacity = 1024u;
@@ -87,7 +70,7 @@ namespace cmd
 	auto capacity(unsigned newCapacity) -> unsigned;
 	auto capacity() const -> unsigned;
 	auto size() const -> unsigned;
-	auto getLine(unsigned index) const->std::string const &;
+	auto getLine(unsigned index) const -> std::string const &;
 	auto appendLine(std::string_view line) -> void;
 	auto appendLine(unsigned previousIndex) -> void;
 	auto removeLine(unsigned index) -> void;

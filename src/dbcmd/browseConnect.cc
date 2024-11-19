@@ -1,3 +1,5 @@
+module;
+
 #if defined(_WINDOWS)
 # if defined(_M_AMD64) && !defined(_AMD64_)
 #   define _AMD64_
@@ -7,17 +9,38 @@
 # endif
 #endif
 
-#include <cstddef>
-#include <utility>
-#include <set>
-#include <tuple>
-#include <string>
-#include <string_view>
-#include <iomanip>
-#include <algorithm>
-#include <execution>
+#include "intellisense/project_headers.hh"
 
-#include "BrowseConnect.hh"
+export module BrowseConnect;
+
+#if !defined MSVC_INTELLISENSE
+import std;
+import Context;
+import CommandHandler;
+#endif
+
+class BrowseConnect: public CommandHandler
+{
+public:
+    class Functor: public HandlerFunctor
+    {
+    public:
+	using HandlerFunctor::HandlerFunctor;
+	virtual void operator ()(string const &command, string::const_iterator it) override;
+    };
+
+    virtual set<string> const &commandNames() const override;
+    virtual string const &helpSubject() const override;
+    virtual string const &helpText() const override;
+    virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
+};
+
+inline std::unique_ptr<HandlerFunctor> BrowseConnect::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
+{
+    return std::make_unique<Functor>(*this, context, cin, cout, cerr, clog);
+}
+
+module: private;
 
 using std::size_t;
 using std::set;

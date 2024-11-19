@@ -22,11 +22,11 @@ set(ODBCXX_HEADERS
     "include/odbc++/Environment.hh"
     "include/odbc++/Connection.hh"
     "include/odbc++/WindowsCategory.hh"
-    # "include/odbc++/FileStreamBuffer.hh"
-    # "include/odbc++/FileDescriptorDevice.hh"
-    # "include/odbc++/FileDescriptorSink.hh"
-    # "include/odbc++/FileDescriptorSource.hh"
-    # "include/odbc++/FileDescriptor.hh"
+    "include/odbc++/FileStreamBuffer.hh"
+    "include/odbc++/FileDescriptorDevice.hh"
+    "include/odbc++/FileDescriptorSink.hh"
+    "include/odbc++/FileDescriptorSource.hh"
+    "include/odbc++/FileDescriptor.hh"
 )
 
 set(ODBCXX_SOURCES
@@ -38,33 +38,35 @@ set(ODBCXX_SOURCES
 
 add_library(odbc++ SHARED ${ODBCXX_HEADERS} ${ODBCXX_SOURCES})
 target_include_directories(odbc++ PUBLIC "include")
-set_target_properties(odbc++ PROPERTIES MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue" COMPILE_PDB_NAME "odbc++.compile")
+set_target_properties(odbc++
+    PROPERTIES
+	MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue"
+	COMPILE_PDB_NAME "odbc++.compile"
+	CXX_SCAN_FOR_MODULES ON
+	INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
 
 target_compile_features(odbc++ PUBLIC cxx_std_23)
 target_link_libraries(odbc++ PUBLIC local_boost::iostreams)
 
+if("23" IN_LIST CMAKE_CXX_COMPILER_IMPORT_STD)
+    set_target_properties(odbc++ PROPERTIES CXX_MODULE_STD ON)
+else()
+    message(SEND_ERROR "C++ support for import std not implemented in the build system, see available compiler options")
+endif()
+
 if(WIN32)
     find_library(ODBC32_LIBRARY_PATH "ODBC32" REQUIRED)
     target_link_libraries(odbc++ PUBLIC "${ODBC32_LIBRARY_PATH}")
+    target_compile_definitions(odbc++ PRIVATE WINDOWS)
 endif()
 
-set(SQLODBC_HEADERS
-    "src/dbcmd/Context.hh"
-    "src/dbcmd/CommandHandler.hh"
-    "src/dbcmd/HandlerFunctor.hh"
-    "src/dbcmd/browseConnect.hh"
-    "src/dbcmd/Drivers.hh"
-    "src/dbcmd/ShellCommand.hh"
-    "src/dbcmd/ChDirCommand.hh"
-    "src/dbcmd/EnvCommand.hh"
-    "src/dbcmd/EchoCommand.hh"
-    "src/dbcmd/HelpCommand.hh"
-    "src/dbcmd/DiagnosticRecord.hh")
-
 set(SQLODBC_SOURCES
-    "src/sqlodbc.cc"
+    "src/dbcmd/external/boost/iostreams.cc"
     "src/dbcmd/Context.cc"
     "src/dbcmd/CommandHandler.cc"
+    "src/dbcmd/lib/HistoryList.cc"
+    "src/dbcmd/lib/HistoryFile.cc"
+    "src/dbcmd/lib/HistoryCache.cc"
     "src/dbcmd/browseConnect.cc"
     "src/dbcmd/Drivers.cc"
     "src/dbcmd/ShellCommand.cc"
@@ -72,15 +74,11 @@ set(SQLODBC_SOURCES
     "src/dbcmd/EnvCommand.cc"
     "src/dbcmd/EchoCommand.cc"
     "src/dbcmd/HelpCommand.cc"
-    "src/dbcmd/DiagnosticRecord.cc")
+    "src/dbcmd/DiagnosticRecord.cc"
+    "src/sqlodbc.cc")
 
-set(SQLODBC_MODULES
-    "src/dbcmd/lib/HistoryList.cc"
-    "src/dbcmd/lib/HistoryFile.cc"
-    "src/dbcmd/lib/HistoryCache.cc")
-
-add_executable(dbcmd ${SQLODBC_HEADERS} ${SQLODBC_SOURCES})
-target_sources(dbcmd PRIVATE FILE_SET CXX_MODULES FILES ${SQLODBC_MODULES})
+add_executable(dbcmd)
+target_sources(dbcmd PRIVATE FILE_SET CXX_MODULES FILES ${SQLODBC_SOURCES})
 target_link_libraries(dbcmd PRIVATE odbc++) # boost_iostreams
 target_compile_features(dbcmd PRIVATE cxx_std_23)
 
@@ -96,10 +94,15 @@ set_target_properties(dbcmd
     PROPERTIES
 	MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue"
 	COMPILE_PDB_NAME "sqlodbc.compile"
-	CXX_SCAN_FOR_MODULES ON)
+	CXX_SCAN_FOR_MODULES ON
+	INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
 if(WIN32)
     find_library(SHELL32_LIBRARY_PATH "Shell32" REQUIRED)
     target_compile_definitions(dbcmd PRIVATE WINDOWS)
     target_link_libraries(dbcmd PRIVATE "${SHELL32_LIBRARY_PATH}")
+
+    if(MSVC)
+	target_include_directories(dbcmd PRIVATE "src/dbcmd")
+    endif()
 endif()

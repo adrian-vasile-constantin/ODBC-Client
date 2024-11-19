@@ -7,20 +7,21 @@
 # endif
 #endif
 
-#include <windef.h>
+#if defined WINDOWS
+# include <windef.h>
+#endif
+
 #include <sql.h>
 #include <sqlext.h>
 #include <sqlucode.h>
 
-#include <string>
-#include <utility>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <execution>
-#include <stdexcept>
+#include "intellisense/odbcxx_project_headers.hh"
 
 #include "odbc++/Environment.hh"
+
+#if !defined MSVC_INTELLISENSE
+import std;
+#endif
 
 using std::string;
 using std::basic_string;

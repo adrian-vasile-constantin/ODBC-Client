@@ -7,12 +7,13 @@
 # endif
 #endif
 
-#include <iterator>
-#include <vector>
-#include <tuple>
-#include <stdexcept>
+#include "intellisense/odbcxx_project_headers.hh"
 
 #include "odbc++/Handle.hh"
+
+#if !defined MSVC_INTELLISENSE
+import std;
+#endif
 
 using std::begin;
 using std::end;

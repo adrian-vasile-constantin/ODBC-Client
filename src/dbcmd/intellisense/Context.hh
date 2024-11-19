@@ -1,18 +1,9 @@
 #if !defined(DBCMD_CONTEXT_HH)
 #define DBCMD_CONTEXT_HH
 
-#if defined(_WINDOWS)
-# include <windef.h>
-#endif
+#if defined __INTELLISENSE__
 
-#include <cstdint>
-#include <string>
-#include <vector>
-#include <streambuf>
-#include <map>
-
-#include <odbc++/Environment.hh>
-#include <odbc++/Connection.hh>
+// For MS IntelliseSense only
 
 class Context
 {
@@ -58,28 +49,6 @@ protected:
     std::wstreambuf *wstreamBuffers[STANDARD_STREAM_COUNT] = { };
 };
 
-inline Context::Context(bool isInteractive, unsigned long ver)
-    : interactive(isInteractive), env(ver)
-{
-    appendNewConnection();
-}
-
-inline void Context::appendNewConnection()
-{
-    connections.emplace_back(env);
-    connectionIndex = connections.size() - 1u;
-    conn = &connections[connectionIndex];
-}
-
-inline void Context::deleteConnection(unsigned connectionIndex)
-{
-    if (connectionIndex < connections.size())
-	connections.erase(connections.begin() + connectionIndex);
-}
-
-inline Context::~Context()
-{
-    restoreStandardStreamBuffers();
-}
+#endif
 
 #endif

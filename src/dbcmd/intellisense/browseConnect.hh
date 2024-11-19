@@ -1,14 +1,13 @@
-#if !defined(DBCMD_ECHO_COMMAND_HH)
-#define DBCMD_ECHO_COMMAND_HH
+#if !defined(DBCMD_COMMAND_BROWSE_CONNECT_HH)
+#define DBCMD_COMMAND_BROWSE_CONNECT_HH
 
-#include <memory>
+#if defined MSVC_INTELLISENSE
 
-#include "HandlerFunctor.hh"
-#include "CommandHandler.hh"
+// For MS IntelliSense only
 
-class EchoCommand: public CommandHandler
+class BrowseConnect: public CommandHandler
 {
-protected:
+public:
     class Functor: public HandlerFunctor
     {
     public:
@@ -22,9 +21,6 @@ protected:
     virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
 };
 
-std::unique_ptr<HandlerFunctor> EchoCommand::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
-{
-    return std::make_unique<Functor>(*this, context, cin, cout, cerr, clog);
-}
+#endif	    // defined MSVC_INTELLISENSE
 
-#endif	    // !defined(DBCMD_ECHO_COMMAND_HH)
+#endif	    // !defined(DBCMD_COMMAND_BROWSE_CONNECT_HH)

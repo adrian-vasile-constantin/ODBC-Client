@@ -1,11 +1,11 @@
-#if !defined(DBCMD_DIAGNOSTIC_RECORD_HH)
-#define DBCMD_DIAGNOSTIC_RECORD_HH
+#if !defined(DBCMD_ECHO_COMMAND_HH)
+#define DBCMD_ECHO_COMMAND_HH
 
-#include <memory>
-#include "HandlerFunctor.hh"
-#include "CommandHandler.hh"
+#if defined MSVC_INTELLISENSE
 
-class DiagnosticRecord: public CommandHandler
+// For MS IntelliSense only
+
+class EchoCommand: public CommandHandler
 {
 protected:
     class Functor: public HandlerFunctor
@@ -21,9 +21,6 @@ protected:
     virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
 };
 
-std::unique_ptr<HandlerFunctor> DiagnosticRecord::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
-{
-    return std::make_unique<Functor>(*this, context, cin, cout, cerr, clog);
-}
+#endif	    // defined MSVC_INTELLISENSE
 
-#endif	    // !defined(DBCMD_DIAGNOSTIC_RECORD_HH)
+#endif	    // !defined(DBCMD_ECHO_COMMAND_HH)

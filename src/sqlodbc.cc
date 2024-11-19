@@ -1,3 +1,5 @@
+module;
+
 #if defined(_WINDOWS)
 # if defined(_M_AMD64) && !defined(_AMD64_)
 #   define _AMD64_
@@ -7,31 +9,25 @@
 # endif
 #endif
 
-#include <cstdlib>
-#include <string>
-#include <exception>
-#include <system_error>
-#include <memory>
-#include <iostream>
-#include <algorithm>
-#include <execution>
-#include <map>
-
-#include <boost/iostreams/stream_buffer.hpp>
-#include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/iostreams/filter/newline.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
+#include "intellisense/project_headers.hh"
 
 #include "odbc++/WindowsCategory.hh"
 #include "odbc++/SQLDiagnosticException.hh"
 #include "odbc++/Environment.hh"
 #include "odbc++/Connection.hh"
+
 #include "odbc++/FileDescriptorDevice.hh"
 #include "odbc++/FileDescriptorSource.hh"
 #include "odbc++/FileDescriptorSink.hh"
 
-#include "dbcmd/Context.hh"
-#include "dbcmd/CommandHandler.hh"
+export module sqlodbc;
+
+#if !defined MSVC_INTELLISENSE
+import std;
+import external.boost.iostreams;
+import Context;
+import CommandHandler;
+#endif
 
 using std::string;
 using std::string_view;
@@ -53,12 +49,13 @@ using std::map;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
 
-using boost::iostreams::input;
-using boost::iostreams::output;
-using boost::iostreams::stream_buffer;
-using boost::iostreams::filtering_streambuf;
-using boost::iostreams::newline_filter;
-namespace newline = boost::iostreams::newline;
+using ext::boost::iostreams::input;
+using ext::boost::iostreams::output;
+using ext::boost::iostreams::stream_buffer;
+using ext::boost::iostreams::filtering_streambuf;
+using ext::boost::iostreams::newline_filter;
+using ext::boost::iostreams::operator |;
+namespace newline = ext::boost::iostreams::newline;
 
 using Flags = odbc::FileDescriptorDevice::Flags;
 using odbc::FileDescriptorSink;
@@ -231,7 +228,7 @@ catch (...)
     return EXIT_FAILURE;
 }
 
-auto main(int argc, char const *argv[]) -> int
+extern "C++" auto main(int argc, char const *argv[]) -> int
 try
 {
     Context context;
@@ -248,11 +245,11 @@ try
     constexpr auto targetNewLine = newline::posix;
 #endif
 
-    auto inputStreamBuffer = filtering_streambuf<input> { newline_filter { targetNewLine } | inputDescriptor };
+    // auto inputStreamBuffer = filtering_streambuf<input> { newline_filter { targetNewLine } | inputDescriptor };
     auto outputStreamBuffer = filtering_streambuf<output> { newline_filter { targetNewLine } | outputDescriptor };
     auto logStreamBuffer = filtering_streambuf<output> { newline_filter { targetNewLine } | logDescriptor };
     auto errorStreamBuffer = filtering_streambuf<output> { newline_filter { targetNewLine } | errorDescriptor };
-    // auto inputStreamBuffer = stream_buffer<FileDescriptorSource> { inputDescriptor };
+    auto inputStreamBuffer = stream_buffer<FileDescriptorSource> { inputDescriptor };
     // auto outputStreamBuffer = stream_buffer<FileDescriptorSink> {outputDescriptor };
     // auto errorStreamBuffer = stream_buffer<FileDescriptorSink> { errorDescriptor };
     

@@ -1,10 +1,9 @@
 #if !defined(DBCMD_HELP_COMMAND_HH)
 #define	DBCMD_HELP_COMMAND_HH
 
-#include <memory>
+#if defined MSVC_INTELLISENSE
 
-#include "HandlerFunctor.hh"
-#include "CommandHandler.hh"
+// For MS IntelliSense only
 
 class HelpCommand: public CommandHandler
 {
@@ -22,10 +21,6 @@ public:
     virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
 };
 
-std::unique_ptr<HandlerFunctor> HelpCommand::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
-{
-    return std::make_unique<Functor>(*this, context, cin, cout, cerr, clog);
-}
-
+#endif	    // defined MSVC_INTELLISENSE
 
 #endif		// !defined(DBCMD_HELP_COMMAND_HH)

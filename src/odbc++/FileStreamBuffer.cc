@@ -7,7 +7,9 @@
 # endif
 #endif
 
-#include <fileapi.h>
+#if defined WINDOWS
+# include <fileapi.h>
+#endif
 
 #include "odbc++/FileStreamBuffer.hh"
 

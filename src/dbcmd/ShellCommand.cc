@@ -1,3 +1,5 @@
+module;
+
 #if defined(_WINDOWS)
 # if defined(_M_AMD64) && !defined(_AMD64_)
 #   define _AMD64_
@@ -7,13 +9,38 @@
 # endif
 #endif
 
-#include <cstdlib>
-#include <string>
-#include <set>
-#include <algorithm>
-#include <exception>
+#include "intellisense/project_headers.hh"
 
-#include "ShellCommand.hh"
+export module ShellCommand;
+
+#if !defined MSVC_INTELLISENSE
+import std;
+import Context;
+import CommandHandler;
+#endif
+
+class ShellCommand: public CommandHandler
+{
+protected:
+    class Functor: public HandlerFunctor
+    {
+    public:
+	using HandlerFunctor::HandlerFunctor;
+	virtual void operator ()(string const &command, string::const_iterator it) override;
+    };
+
+    virtual set<string> const &commandNames() const override;
+    virtual string const &helpSubject() const override;
+    virtual string const &helpText() const override;
+    virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
+};
+
+inline std::unique_ptr<HandlerFunctor> ShellCommand::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
+{
+    return std::unique_ptr<HandlerFunctor> { new Functor(*this, context, cin, cout, cerr, clog) };
+}
+
+module :private;
 
 using std::system;
 using std::getenv;

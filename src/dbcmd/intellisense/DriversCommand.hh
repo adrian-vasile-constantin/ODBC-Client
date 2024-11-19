@@ -1,14 +1,13 @@
-#if !defined(DBCMD_COMMAND_BROWSE_CONNECT_HH)
-#define DBCMD_COMMAND_BROWSE_CONNECT_HH
+#if !defined(DBCMD_COMMAND_DRIVERS_HH)
+#define DBCMD_COMMAND_DRIVERS_HH
 
-#include <memory>
+#if defined MSVC_INTELLISENSE
 
-#include "HandlerFunctor.hh"
-#include "CommandHandler.hh"
+// For MS IntelliSense only
 
-class BrowseConnect: public CommandHandler
+class Drivers: public CommandHandler
 {
-public:
+protected:
     class Functor: public HandlerFunctor
     {
     public:
@@ -16,15 +15,13 @@ public:
 	virtual void operator ()(string const &command, string::const_iterator it) override;
     };
 
+public:
     virtual set<string> const &commandNames() const override;
     virtual string const &helpSubject() const override;
     virtual string const &helpText() const override;
     virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
 };
 
-std::unique_ptr<HandlerFunctor> BrowseConnect::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
-{
-    return std::make_unique<Functor>(*this, context, cin, cout, cerr, clog);
-}
+#endif	    // !defined MSVC_INTELLISENSE
 
-#endif	    // !defined(DBCMD_COMMAND_BROWSE_CONNECT_HH)
+#endif	    // !defined(DBCMD_COMMAND_DRIVERS_HH)

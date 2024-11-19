@@ -1,15 +1,11 @@
 #if !defined(DBCMD_COMMAND_HANDLER_HH)
 #define DBCMD_COMMAND_HANDLER_HH
 
-#include <memory>
-#include <set>
-#include <string>
-#include <iostream>
+#if defined MSVC_INTELLISENSE
 
-#include "odbc++/Environment.hh"
-#include "odbc++/Connection.hh"
-#include "Context.hh"
-#include "HandlerFunctor.hh"
+// For MS IntelliSense only
+
+class HandlerFunctor;
 
 class CommandHandler
 {
@@ -18,10 +14,10 @@ protected:
 
 public:
     template <typename ElemT>
-	using set = std::set<ElemT>;
+    using set = std::set<ElemT>;
 
     template <typename ObjectT, typename DeleterT = std::default_delete<ObjectT>>
-	using unique_ptr = std::unique_ptr<ObjectT, DeleterT>;
+    using unique_ptr = std::unique_ptr<ObjectT, DeleterT>;
 
     using string = std::string;
 
@@ -41,5 +37,32 @@ public:
     virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) = 0;
     virtual HandlerFunctor *mainFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog);
 };
+
+class HandlerFunctor
+{
+public:
+    using string = std::string;
+    using istream = std::istream;
+    using ostream = std::ostream;
+
+protected:
+    CommandHandler *handler;
+    odbc::Environment &env;
+    std::vector<odbc::Connection> &connections;
+    unsigned &connectionIndex;
+    odbc::Connection *&conn;
+
+    istream &cin;
+    ostream &cout, &cerr, &clog;
+
+public:
+    HandlerFunctor(CommandHandler &handler, Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog);
+    virtual ~HandlerFunctor();
+
+    virtual auto commandHandler() -> CommandHandler *;
+    virtual auto operator ()(string const &command, string::const_iterator it) -> void = 0;
+};
+
+#endif	    // defined MSVC_INTELLISENSE
 
 #endif	    // !defined(DBCMD_COMMAND_HANDLER_HH)

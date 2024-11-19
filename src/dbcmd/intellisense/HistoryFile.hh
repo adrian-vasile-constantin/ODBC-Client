@@ -1,25 +1,9 @@
 #if !defined ODBC_CMD_LIB_HISTORY_FILE_HH
 #define ODBC_CMD_LIB_HISTORY_FILE_HH
 
-#if defined __INTELLISENSE__
+#if defined MSVC_INTELLISENSE
 
 // For MS IntelliSense only
-
-#include <limits>
-#include <memory>
-#include <list>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <iomanip>
-#include <boost/iostreams/stream_buffer.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/filter/newline.hpp>
-#include <ranges>
-#include <filesystem>
-
-#include "HistoryList.hh"
 
 namespace cmd
 {

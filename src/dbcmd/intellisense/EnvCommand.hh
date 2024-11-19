@@ -1,13 +1,14 @@
-#if !defined(DBCMD_SHELL_COMMAND_HH)
-#define DBCMD_SHELL_COMMAND_HH
+#if !defined(DBCMD_ENV_COMMAND_HH)
+#define DBCMD_ENV_COMMAND_HH
 
-#include "HandlerFunctor.hh"
-#include "CommandHandler.hh"
+#if defined MSVC_INTELLISENSE
 
-class ShellCommand: public CommandHandler
+// For MS IntelliSense only
+
+class EnvCommand : public CommandHandler
 {
 protected:
-    class Functor: public HandlerFunctor
+    class Functor : public HandlerFunctor
     {
     public:
 	using HandlerFunctor::HandlerFunctor;
@@ -20,9 +21,6 @@ protected:
     virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
 };
 
-std::unique_ptr<HandlerFunctor> ShellCommand::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
-{
-    return std::make_unique<Functor>(*this, context, cin, cout, cerr, clog);
-}
+#endif	    // defined MSVC_INTELLISENSE
 
-#endif	    // !defined(DBCMD_SHELL_COMMAND_HH)
+#endif	    // !defined(DBCMD_ENV_COMMAND_HH)

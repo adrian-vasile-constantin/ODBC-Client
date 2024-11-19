@@ -1,18 +1,10 @@
 module;
 
-#if defined __INTELLISENSE__
-# include <limits>
-# include <utility>
-# include <iterator>
-# include <list>
-# include <string>
-# include <ranges>
-# include <algorithm>
-#endif
+#include "intellisense/project_headers.hh"
 
 export module HistoryList;
 
-#if !defined __INTELLISENSE__
+#if !defined MSVC_INTELLISENSE
 import std;
 #endif
 

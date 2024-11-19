@@ -1,15 +1,11 @@
 #if !defined ODBC_CMD_LIB_HISTORY_LIST_HH
 #define ODBC_CMD_LIB_HISTORY_LIST_HH
 
-#if defined __INTELLISENSE__
+#if defined MSVC_INTELLISENSE
 
 // For MS IntelliSense only
 
-# include <utility>
-# include <string>
-# include <list>
-# include <limits>
-# include <algorithm>
+#include "intellisense/project_headers.hh"
 
 class HistoryList
 {

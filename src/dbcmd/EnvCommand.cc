@@ -1,3 +1,5 @@
+module;
+
 #if defined(_WINDOWS)
 # if defined(_M_AMD64) && !defined(_AMD64_)
 #   define _AMD64_
@@ -7,19 +9,50 @@
 # endif
 #endif
 
-#include <cstdlib>
-#include <map>
-#include <set>
-#include <vector>
-#include <tuple>
-#include <string>
-#include <iostream>
-#include <algorithm>
-#include <execution>
-#include <stdexcept>
+#include "intellisense/project_headers.hh"
 
-#include "EnvCommand.hh"
+#if defined WINDOWS
+# include <windef.h>
+# include <WinBase.h>
+# include <processenv.h>
+#endif
 
+#if defined WINDOWS
+# include "odbc++/WindowsCategory.hh"
+#endif
+
+export module EnvCommand;
+
+#if !defined MSVC_INTELLISENSE
+import std;
+import Context;
+import CommandHandler;
+#endif
+
+class EnvCommand: public CommandHandler
+{
+protected:
+    class Functor: public HandlerFunctor
+    {
+    public:
+	using HandlerFunctor::HandlerFunctor;
+	virtual void operator ()(string const &command, string::const_iterator it) override;
+    };
+
+    virtual set<string> const &commandNames() const override;
+    virtual string const &helpSubject() const override;
+    virtual string const &helpText() const override;
+    virtual unique_ptr<HandlerFunctor> handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog) override;
+};
+
+inline std::unique_ptr<HandlerFunctor> EnvCommand::handlerFunctor(Context &context, istream &cin, ostream &cout, ostream &cerr, ostream &clog)
+{
+    return std::make_unique<Functor>(*this, context, cin, cout, cerr, clog);
+}
+
+module :private;
+
+using std::unique_ptr;
 using std::tuple;
 using std::set;
 using std::map;
@@ -31,10 +64,15 @@ using std::reduce;
 using std::runtime_error;
 using std::ostream;
 using std::getenv;
+using std::system_error;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
 
-#if defined(_WINDOWS)
+#if defined WINDOWS
+using odbc::windows_error_code;
+#endif
+
+#if defined WINDOWS
 constexpr char const pathListDelimiter = ';';
 #else
 constexpr char const pathListDelimiter = ':';
@@ -120,11 +158,8 @@ static tuple<string, string, string> parseEnvCommand(string const &command, stri
 static void removeEnvVar(string const &varName)
 {
 #if defined(_WINDOWS)
-    string envLine = varName + "="s;
-    if (_putenv(envLine.c_str()) < 0)
-	throw runtime_error("Error setting environment variable"s);
-//     if (BOOL fVarUpdated = SetEnvironmentVariable(varName.c_str(), NULL); !fVarUpdated)
-// 	throw runtime_error("Environment variable update failed with WinAPI error "s + std::to_string(::GetLastError()));
+    if (!::SetEnvironmentVariable(varName.c_str(), NULL))
+	throw system_error { windows_error_code(), "Failed to remove environment variable "s + varName };
 #else
     unsetenv(varName.c_str());
 #endif
@@ -132,19 +167,37 @@ static void removeEnvVar(string const &varName)
 
 static void setEnvVar(string const &varName, string const &newValue)
 {
-    string envLine = varName + "="s + newValue;
 #if defined(_WINDOWS)
-    if (_putenv(envLine.c_str()) < 0)
-	throw runtime_error("Error setting environment variable"s);
-//     if (BOOL fVarUpdated = SetEnvironmentVariable(varName.c_str(), newValue.c_str()); !fVarUpdated)
-// 	throw runtime_error("Environment variable update failed with WinAPI error "s + std::to_string(::GetLastError()));
+    if (BOOL fVarUpdated = ::SetEnvironmentVariable(varName.c_str(), newValue.c_str()); !fVarUpdated)
+	throw system_error(windows_error_code(), "Failed to update environment variable "s + varName + " to "s + newValue);
 #else
+    string envLine = varName + "="s + newValue;
     setenv(varName.c_str(), newValue.c_str());
 #endif
 }
 
 static void showEnvironment(ostream &cout)
 {
+#if defined WINDOWS
+
+    unique_ptr<CHAR [], decltype((FreeEnvironmentStrings))> env { GetEnvironmentStrings(), FreeEnvironmentStrings };
+
+    if (CHAR const *pEnv = env.get())
+    {
+	while (unsigned len = strlen(pEnv))
+	{
+	    if (*pEnv != '=')	    // some weired strings beginging with = are found at the beginning of the block under VS
+		cout << '\t' << string_view { pEnv, pEnv + len } << '\n';
+
+	    pEnv += len + 1u;
+	}
+    }
+    else
+	throw system_error { windows_error_code(), "Failed to get environment table." };
+
+#else
+    extern char **environ;
+
     char **var = environ;
 
     map<string, string> variables;
@@ -166,6 +219,7 @@ static void showEnvironment(ostream &cout)
 
     for (auto const &envPair : variables)
 	cout << '\t' << envPair.first << '=' << envPair.second << '\n';
+#endif
 
     cout << '\n';
 }

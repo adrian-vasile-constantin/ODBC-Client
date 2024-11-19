@@ -1,25 +1,10 @@
 module;
 
-// #include <vector>
-// #include <list>
-// #include <string>
-// #include <filesystem>
-
-// #include "HistoryList.hh"
-// #include "HistoryFile.hh"
-
-#if defined __INTELLISENSE__
-# include <vector>
-# include <tuple>
-# include <string>
-# include <filesystem>
-
-# include "HistoryList.hh"
-#endif
+#include "intellisense/project_headers.hh"
 
 export module HistoryCache;
 
-#if !defined __INTELLISENSE__
+#if !defined MSVC_INTELLISENSE
 import std;
 import HistoryList;
 #endif
