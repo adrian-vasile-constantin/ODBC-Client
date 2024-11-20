@@ -11,13 +11,12 @@ module;
 
 #include "intellisense/project_headers.hh"
 
-#include "odbc++/Environment.hh"
-#include "odbc++/Connection.hh"
-
 export module DriversCommand;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+import odbc.Environment;
+import odbc.Connection;
 import Context;
 import CommandHandler;
 #endif

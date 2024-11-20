@@ -15,13 +15,12 @@ module;
 # include <windows.h>
 #endif
 
-#include "odbc++/Environment.hh"
-#include "odbc++/Connection.hh"
-
 export module Context;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+import odbc.Environment;
+import odbc.Connection;
 #endif
 
 export class Context
@@ -60,7 +59,7 @@ public:
     void appendNewConnection();
     void deleteConnection(unsigned connectionIndex);
 
-    Context(bool isInteractive = isStdInInteractive(), unsigned long ver = SQL_OV_ODBC3_80);
+    Context(bool isInteractive = isStdInInteractive(), unsigned long ver = std::to_underlying(odbc::Environment::Version::ODBC3_80));
     ~Context();
 
 protected:

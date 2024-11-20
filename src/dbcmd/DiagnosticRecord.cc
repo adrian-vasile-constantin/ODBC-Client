@@ -11,13 +11,12 @@ module;
 
 #include "intellisense/project_headers.hh"
 
-#include <odbc++/SQLDiagnosticException.hh>
-
 export module DiagnosticRecord;
 
 #if !defined MSVC_INTELLISENSE
 import std;
 import CommandHandler;
+import odbc.SQLDiagnosticException;
 #endif
 
 class DiagnosticRecord: public CommandHandler

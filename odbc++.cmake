@@ -2,11 +2,6 @@ include(GNUInstallDirs)
 include(GenerateExportHeader)
 
 set(ODBCXX_HEADERS
-    "include/odbc++/SQLDiagnosticException.hh"
-    "include/odbc++/Handle.hh"
-    "include/odbc++/Environment.hh"
-    "include/odbc++/Connection.hh"
-    "include/odbc++/WindowsCategory.hh"
     "include/odbc++/FileStreamBuffer.hh"
     "include/odbc++/FileDescriptorDevice.hh"
     "include/odbc++/FileDescriptorSink.hh"
@@ -15,14 +10,18 @@ set(ODBCXX_HEADERS
 )
 
 set(ODBCXX_SOURCES
+    "src/odbc++/FileStreamBuffer.cc")
+
+set(ODBCXX_MODULES
+    "src/odbc++/WindowsCategory.cc"
     "src/odbc++/Handle.cc"
     "src/odbc++/Environment.cc"
     "src/odbc++/Connection.cc"
-    "src/odbc++/WindowsCategory.cc"
-    "src/odbc++/FileStreamBuffer.cc")
+    "src/odbc++/SQLDiagnosticException.cc")
 
 add_library(odbc++ SHARED ${ODBCXX_SOURCES})
 target_sources(odbc++ PUBLIC FILE_SET HEADERS TYPE HEADERS BASE_DIRS "include" FILES ${ODBCXX_HEADERS})
+target_sources(odbc++ PUBLIC FILE_SET CXX_MODULES TYPE CXX_MODULES BASE_DIRS "src/odbc++" FILES ${ODBCXX_MODULES})
 target_include_directories(odbc++ PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 set_target_properties(odbc++
     PROPERTIES
@@ -51,18 +50,25 @@ endif()
 
 if(WIN32)
     find_library(ODBC_LIBRARY_PATH "ODBC32" REQUIRED)
-    target_link_libraries(odbc++ PRIVATE "${ODBC_LIBRARY_PATH}")
-    target_compile_definitions(odbc++ PRIVATE WINDOWS)
+    target_link_libraries(odbc++ PUBLIC "$<BUILD_INTERFACE:${ODBC_LIBRARY_PATH}>" "$<INSTALL_INTERFACE:ODBC32>")
+    target_compile_definitions(odbc++ PUBLIC WINDOWS)
 endif()
 
 install(TARGETS odbc++ EXPORT odbc++
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/odbc++" COMPONENT Development
     FILE_SET HEADERS DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" COMPONENT Development
+    FILE_SET CXX_MODULES DESTINATION "${CMAKE_INSTALL_DATADIR}/cxx/modules/src/odbc++-${PROJECT_VERSION}" COMPONENT Development
+    CXX_MODULES_BMI DESTINATION "${CMAKE_INSTALL_DATADIR}/cxx/modules/bmi/${CMAKE_CXX_COMPILER_ID}/${CMAKE_CXX_COMPILER_VERSION}/odbc++-${PROJECT_VERSION}/" COMPONENT Development
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Development
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Runtime NAMELINK_COMPONENT Development
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Runtime)
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ODBCXX_Export.h"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/odbc++" COMPONENT Development)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ODBCXX_Export.h"
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/cxx/modules/src/odbc++-${PROJECT_VERSION}" COMPONENT Development)
+
+install(DIRECTORY "src/odbc++/intellisense" DESTINATION "${CMAKE_INSTALL_DATADIR}/cxx/modules/src/odbc++-${PROJECT_VERSION}" COMPONENT Development)
 
 install(EXPORT odbc++ COMPONENT Development DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake")

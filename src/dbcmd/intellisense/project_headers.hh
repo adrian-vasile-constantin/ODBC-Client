@@ -53,8 +53,8 @@ namespace external
 namespace ext = external;
 
 #include <odbc++/SQLDiagnosticException.hh>
-#include "odbc++/Environment.hh"
-#include "odbc++/Connection.hh"
+
+#include <../odbc++/intellisense/odbcxx_project_headers.hh>
 
 #include "HistoryList.hh"
 #include "HistoryFile.hh"

@@ -17,14 +17,16 @@ module;
 # include <processenv.h>
 #endif
 
-#if defined WINDOWS
-# include "odbc++/WindowsCategory.hh"
-#endif
 
 export module EnvCommand;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+
+#if defined WINDOWS
+import odbc.WindowsCategory;
+#endif
+
 import Context;
 import CommandHandler;
 #endif

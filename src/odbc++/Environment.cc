@@ -1,3 +1,5 @@
+module;
+
 #if defined(_WINDOWS)
 # if defined(_M_AMD64) && !defined(_AMD64_)
 #   define _AMD64_
@@ -17,11 +19,92 @@
 
 #include "intellisense/odbcxx_project_headers.hh"
 
-#include "odbc++/Environment.hh"
+#include "ODBCXX_export.h"
+
+export module odbc.Environment;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+import odbc.Handle;
 #endif
+
+namespace odbc
+{
+    export class ODBCXX_EXPORT Environment: protected Handle
+    {
+    protected:
+	friend class Connection;
+	void FetchDriver(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &driverInfo);
+
+    public:
+	enum class Version: unsigned long
+	{
+	    ODBC2    = SQL_OV_ODBC2,
+	    ODBC3    = SQL_OV_ODBC3,
+	    ODBC3_80 = SQL_OV_ODBC3_80
+	};
+
+	Environment(Version ver);
+	Environment(unsigned long ver = SQL_OV_ODBC3_80);
+	std::map<std::string, std::map<std::string, std::string>> drivers();
+
+	SQLHENV nativeHandle() const;
+
+	using Handle::diagnosticRecord;
+	using Handle::diagnosticRecords;
+
+	template <typename StringT, typename CharT>
+	static std::map<std::string, std::string> splitAttributes(StringT const &inputLine, CharT separator = ';');
+    };
+}
+
+inline odbc::Environment::Environment(unsigned long ver)
+    : Handle(SQL_HANDLE_ENV, SQL_NULL_HANDLE)
+{
+    SQLSetEnvAttr(sqlHandle, SQL_ATTR_ODBC_VERSION, reinterpret_cast<void *>(uintptr_t { ver }), -1);
+}
+
+inline odbc::Environment::Environment(Version ver)
+    : Environment(std::to_underlying(ver))
+{
+}
+
+inline SQLHENV odbc::Environment::nativeHandle() const
+{
+    return sqlHandle;
+}
+
+template<typename StringT, typename CharT>
+std::map<std::string, std::string> odbc::Environment::splitAttributes(StringT const &attributes, CharT separator)
+{
+    using std::string;
+    auto it = attributes.begin();
+    auto jt = std::find(std::execution::par_unseq, it, attributes.end(), separator);
+
+    std::map<string, string> attributesMap;
+
+    while (it != jt)
+    {
+	auto kt = std::find(std::execution::par_unseq, it, jt, '=');
+
+	if (kt != jt)
+	    attributesMap[string(it, kt)] = string(kt + 1, jt);
+	else
+	    attributesMap[string(it, jt)] = string();
+
+	if (jt != attributes.end())
+	{
+	    it = ++jt;
+	    jt = std::find(std::execution::par_unseq, it, attributes.end(), separator);
+	}
+	else
+	    it = jt;
+    }
+
+    return attributesMap;
+}
+
+module: private;
 
 using std::string;
 using std::basic_string;
@@ -122,7 +205,7 @@ auto odbc::Environment::drivers() -> map<string, map<string, string>>
 
     for (auto &driverInfo: driverList)
     {
-	FetchDriver(&driverInfo == &*driverList.begin() ? SQL_FETCH_FIRST : SQL_FETCH_NEXT, driverInfo);
+	FetchDriver(&driverInfo == &driverList.front() ? SQL_FETCH_FIRST : SQL_FETCH_NEXT, driverInfo);
 	drivers.emplace(MakeDriverInfo(driverInfo.first, driverInfo.second));
     }
 

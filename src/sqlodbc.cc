@@ -11,11 +11,6 @@ module;
 
 #include "intellisense/project_headers.hh"
 
-#include "odbc++/WindowsCategory.hh"
-#include "odbc++/SQLDiagnosticException.hh"
-#include "odbc++/Environment.hh"
-#include "odbc++/Connection.hh"
-
 #include "odbc++/FileDescriptorDevice.hh"
 #include "odbc++/FileDescriptorSource.hh"
 #include "odbc++/FileDescriptorSink.hh"
@@ -25,6 +20,14 @@ export module sqlodbc;
 #if !defined MSVC_INTELLISENSE
 import std;
 import external.boost.iostreams;
+
+#if defined WINDOWS
+import odbc.WindowsCategory;
+#endif
+
+import odbc.Environment;
+import odbc.Connection;
+import odbc.SQLDiagnosticException;
 import Context;
 import CommandHandler;
 #endif

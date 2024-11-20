@@ -1,3 +1,5 @@
+module;
+
 #if defined(_WINDOWS)
 # if defined(_M_AMD64) && !defined(_AMD64_)
 #   define _AMD64_
@@ -16,12 +18,75 @@
 
 #include "intellisense/odbcxx_project_headers.hh"
 
-#include "odbc++/SQLDiagnosticException.hh"
-#include "odbc++/Connection.hh"
+#include "ODBCXX_export.h"
+
+export module odbc.Connection;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+import odbc.Handle;
+import odbc.Environment;
+import odbc.SQLDiagnosticException;
 #endif
+
+namespace odbc
+{
+    export class ODBCXX_EXPORT Connection: protected Handle
+    {
+    public:
+	enum State
+	{
+	    Disconnected, InProgress, Connected
+	};
+
+    protected:
+	State state = State::Disconnected;
+
+	enum class BrowseConnectResult
+	{
+	    Connected,
+	    Again,
+	    More
+	}
+	nativeBrowseConnect(std::span<SQLCHAR> request, sqlstring &result);
+
+	std::map<std::string, std::string> browseConnect(std::span<SQLCHAR> request);
+
+    public:
+	Connection(Environment &env);
+	Connection(Connection const &other) = delete;
+	Connection(Connection &&other) = default;
+	~Connection();
+
+	SQLHDBC nativeHandle() const;
+	using Handle::diagnosticRecord;
+	using Handle::diagnosticRecords;
+
+	Connection &operator =(Connection const &other) = delete;
+	Connection &operator =(Connection &&other) = default;
+
+	std::map<std::string, std::string> browseConnect(std::map<std::string, std::string> const &request);
+	bool disconnect();
+	State connected() const noexcept;
+    };
+}
+
+inline odbc::Connection::Connection(Environment &env)
+    : Handle(SQL_HANDLE_DBC, env.nativeHandle())
+{
+}
+
+inline odbc::Connection::~Connection()
+{
+    disconnect();
+}
+
+inline SQLHDBC odbc::Connection::nativeHandle() const
+{
+    return sqlHandle;
+}
+
+module :private;
 
 using std::size_t;
 using std::map;
@@ -34,6 +99,8 @@ using std::runtime_error;
 using std::uncaught_exceptions;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
+
+using odbc::SQLDiagnosticException;
 
 odbc::Connection::State odbc::Connection::connected() const noexcept
 {
