@@ -1,5 +1,6 @@
 include(GNUInstallDirs)
 include(GenerateExportHeader)
+include(VersionInfo)
 
 set(ODBCXX_HEADERS
     "include/odbc++/FileStreamBuffer.hh"
@@ -53,6 +54,17 @@ if(WIN32)
     target_link_libraries(odbc++ PUBLIC "$<BUILD_INTERFACE:${ODBC_LIBRARY_PATH}>" "$<INSTALL_INTERFACE:ODBC32>")
     target_compile_definitions(odbc++ PUBLIC WINDOWS)
 endif()
+
+VersionInfo_Generate(TARGET odbc++
+    FILE_FLAG_PATCHED FALSE
+    FILE_FLAG_PRERELEASE TRUE
+    PRIVATE_BUILD ""
+    SPECIAL_BUILD ""
+    COMMENTS "C++ ODBC Library"
+    FILE_DESCRIPTION "C++ ODBC Library"
+    LEGAL_COPYRIGHT "Copyright (C) Adrian Constantin"
+    #LEGAL_TRADEMARKS "a b c d"
+)
 
 install(TARGETS odbc++ EXPORT odbc++
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/odbc++" COMPONENT Development
