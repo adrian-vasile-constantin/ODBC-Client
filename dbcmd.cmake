@@ -46,7 +46,7 @@ VersionInfo_Generate(TARGET dbcmd
     COMMENTS "ODBC Command Prompt and command interpretter"
     FILE_DESCRIPTION "ODBC Command Prompt"
     LEGAL_COPYRIGHT "Copyright (C) Adrian Constantin"
-    #LEGAL_TRADEMARKS "a b c d"
+    ICON "icon/db_plates.ico"
 )
 
 if(WIN32)

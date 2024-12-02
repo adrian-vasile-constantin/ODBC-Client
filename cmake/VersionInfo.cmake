@@ -430,7 +430,7 @@ function(versioninfo_fill_icon OUTVAR)
 	endif()
 
 	get_target_property(target_source_directory ${ARGS_MAP_TARGET} SOURCE_DIR)
-	cmake_path(ABSOLUTE_PATH ICON_FILENAME BASE_PATH "${target_source_directory}")
+	cmake_path(ABSOLUTE_PATH ICON_FILENAME BASE_DIRECTORY "${target_source_directory}")
 	list(APPEND ${OUTVAR} "")
 	list(APPEND ${OUTVAR} "${ICON_ID} ICON \"${ICON_FILENAME}\"")
 	

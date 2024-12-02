@@ -63,6 +63,7 @@ VersionInfo_Generate(TARGET odbc++
     COMMENTS "C++ ODBC Library"
     FILE_DESCRIPTION "C++ ODBC Library"
     LEGAL_COPYRIGHT "Copyright (C) Adrian Constantin"
+    ICON "icon/db_plates.ico"
     #LEGAL_TRADEMARKS "a b c d"
 )
 
