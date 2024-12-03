@@ -46,6 +46,7 @@ target_include_directories(odbc++ PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINA
 if("23" IN_LIST CMAKE_CXX_COMPILER_IMPORT_STD)
     set_target_properties(odbc++ PROPERTIES CXX_MODULE_STD ON)
 else()
+    message(STATUS "CXX compiler import std: ${CMAKE_CXX_COMPILER_IMPORT_STD}")
     message(SEND_ERROR "C++ support for import std not implemented in the build system, see available compiler options")
 endif()
 
@@ -56,13 +57,9 @@ if(WIN32)
 endif()
 
 VersionInfo_Generate(TARGET odbc++
-    FILE_FLAG_PATCHED FALSE
-    FILE_FLAG_PRERELEASE TRUE
-    PRIVATE_BUILD ""
-    SPECIAL_BUILD ""
     COMMENTS "C++ ODBC Library"
     FILE_DESCRIPTION "C++ ODBC Library"
-    LEGAL_COPYRIGHT "Copyright (C) Adrian Constantin"
+    LEGAL_COPYRIGHT "Copyright (C) 2025 Timothy Madden"
     ICON "icon/db_plates.ico"
     #LEGAL_TRADEMARKS "a b c d"
 )

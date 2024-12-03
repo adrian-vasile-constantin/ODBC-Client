@@ -8,6 +8,7 @@ lib/.precomp
 CMakeSettings.json
 /out/
 /*-build/
+/build/
 tags
 cscope.out
 /.projectConfig

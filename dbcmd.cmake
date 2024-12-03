@@ -23,11 +23,10 @@ target_sources(dbcmd PRIVATE FILE_SET CXX_MODULES FILES ${SQLODBC_SOURCES})
 target_link_libraries(dbcmd PRIVATE odbc++) # boost_iostreams
 target_compile_features(dbcmd PRIVATE cxx_std_23)
 
-message(STATUS "CXX compiler import std: ${CMAKE_CXX_COMPILER_IMPORT_STD}")
-
 if("23" IN_LIST CMAKE_CXX_COMPILER_IMPORT_STD)
     set_target_properties(dbcmd PROPERTIES CXX_MODULE_STD ON)
 else()
+    message(STATUS "CXX compiler import std: ${CMAKE_CXX_COMPILER_IMPORT_STD}")
     message(SEND_ERROR "C++ support for import std not implemented in the build system, see available compiler options")
 endif()
 
@@ -39,13 +38,13 @@ set_target_properties(dbcmd
 	INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
 VersionInfo_Generate(TARGET dbcmd
-    FILE_FLAG_PATCHED FALSE
-    FILE_FLAG_PRERELEASE TRUE
-    PRIVATE_BUILD ""
-    SPECIAL_BUILD ""
+#    FILE_FLAG_PATCHED FALSE
+#    FILE_FLAG_PRERELEASE TRUE
+#    PRIVATE_BUILD ""
+#    SPECIAL_BUILD ""
     COMMENTS "ODBC Command Prompt and command interpretter"
     FILE_DESCRIPTION "ODBC Command Prompt"
-    LEGAL_COPYRIGHT "Copyright (C) Adrian Constantin"
+    LEGAL_COPYRIGHT "Copyright (C) 2025 Timothy Madden"
     ICON "icon/db_plates.ico"
 )
 

@@ -21,7 +21,7 @@ function(versioninfo_parse_version_string INPUT_STRING OUTVAR)
 endfunction()
 
 function(versioninfo_check_git_working_tree DIRECTORY_NAME OUTVAR)
-    execute_process(COMMAND Git::Git -C "${DIRECTORY_NAME}" rev-parse --show-toplevel
+    execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${DIRECTORY_NAME}" rev-parse --show-toplevel
 	OUTPUT_QUIET
 	ERROR_QUIET
 	COMMAND_ECHO STDOUT
@@ -101,19 +101,7 @@ function(versioninfo_setup_fileflags OUTVAR)
 	    list(APPEND VERSIONINFO_FILE_FLAGS "VS_FF_PATCHED")
 	endif()
     else()
-	if(TARGET Git::Git)
-	    if(NOT DEFINED GIT_WORKING_TREE)
-		if(NOT DEFINED target_source_directory)
-		    get_target_property(target_source_directory ${ARGS_MAP_TARGET} SOURCE_DIR)
-		endif()
-
-		versioninfo_check_git_working_tree("${target_source_directory}" GIT_WORKING_TREE)
-	    endif()
-
-	    if (GIT_WORKING_TREE)
-		list(APPEND VERSIONINFO_FILE_FLAGS "@{VS_FF_PATCHED}")
-	    endif()
-	endif()
+	list(APPEND VERSIONINFO_FILE_FLAGS "@{VS_FF_PATCHED}")
     endif()
 
     if(DEFINED ARGS_MAP_FILE_FLAG_PRERELEASE)
@@ -121,18 +109,8 @@ function(versioninfo_setup_fileflags OUTVAR)
 	    list(APPEND VERSIONINFO_FILE_FLAGS "VS_FF_PRERELEASE")
 	endif()
     else()
-	if(TARGET Git::Git)
-	    if(NOT DEFINED GIT_WORKING_TREE)
-		if(NOT DEFINED target_source_directory)
-		    get_target_property(target_source_directory ${ARGS_MAP_TARGET} SOURCE_DIR)
-		endif()
-
-		versioninfo_check_git_working_tree("${target_source_directory}" GIT_WORKING_TREE)
-	    endif()
-
-	    if (GIT_WORKING_TREE AND NOT DEFINED VERSIONINFO_RELEASE_BUILD AND NOT DEFINED VERSIONINFO_${ARGS_MAP_TARGET}_RELEASE_BUILD)
-		list(APPEND VERSIONINFO_FILE_FLAGS "@{VS_FF_PRERELEASE}")
-	    endif()
+	if (NOT DEFINED VERSIONINFO_RELEASE_BUILD AND NOT DEFINED VERSIONINFO_${ARGS_MAP_TARGET}_RELEASE_BUILD)
+	    list(APPEND VERSIONINFO_FILE_FLAGS "@{VS_FF_PRERELEASE}")
 	endif()
     endif()
 
@@ -295,7 +273,7 @@ function(versioninfo_fill_strings_block OUTVAR)
 	message(SEND_ERROR "FILE_DESCRIPTION argument not specified and not available for call to VersionInfo_Generate()")
     endif()
 
-    list(APPEND ${OUTVAR} "            VALUE \"FileDescription\",	\"${FILE_DESCRIPTION}\"")
+    list(APPEND ${OUTVAR} "            VALUE \"FileDescription\",    \"${FILE_DESCRIPTION}\"")
 
     list(LENGTH ARGS_MAP_FILE_VERSION FILE_VERSION_LENGTH)
 
@@ -469,6 +447,105 @@ endfunction()
 
 set(VERSIONINFO_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
+function(versioninfo_add_generate_step)
+    if(VERSIONINFO_FILE_FLAGS MATCHES "\@\{.*\}")
+	if(ARGS_MAP_RESOURCE_FILENAME)
+	    cmake_path(GET RESOURCE_FILE_NAME PARENT_PATH RESOURCE_FILE_DIR)
+	    cmake_path(GET RESOURCE_FILE_NAME STEM RESOURCE_FILE_BASENAME)
+	    cmake_path(GET RESOURCE_FILE_NAME EXTENSION RESOURCE_FILE_EXT)
+	    cmake_path(APPEND RESOURCE_TEMPLATE_NAME "${RESOURCE_FILE_DIR}" "${RESOURCE_FILE_BASENAME}.template.${RESOURCE_FILE_EXT}")
+	else()
+	    if(generator_is_multi_config)
+		set(RESOURCE_TEMPLATE_NAME "${TARGET_BINARY_DIRECTORY}/${ARGS_MAP_TARGET}_VersionInfo_$<CONFIG>.template.rc")
+	    else()
+		set(RESOURCE_TEMPLATE_NAME "${TARGET_BINARY_DIRECTORY}/${ARGS_MAP_TARGET}_VersionInfo.template.rc")
+	    endif()
+	endif()
+
+	versioninfo_fill_content("${RESOURCE_TEMPLATE_NAME}" ICON_FILE_NAME)
+	get_target_property(target_source_directory ${ARGS_MAP_TARGET} SOURCE_DIR)
+
+	if(TARGET Git::Git)
+	    versioninfo_check_git_working_tree("${target_source_directory}" GIT_WORKING_TREE)
+	else()
+	    set(GIT_WORKING_TREE FALSE)
+	endif()
+
+	if(DEFINED VERSIONINFO_PATCHED)
+	    set(VERSIONINFO_PATCHED_ARG "-DVERSIONINFO_PATCHED:BOOL=\"${VERSIONINFO_PATCHED}\"")
+	else()
+	    set(VERSIONINFO_PATCHED_ARG)
+	endif()
+
+	if(DEFINED VERSIONINFO_${ARGS_MAP_TARGET}_PATCHED)
+	    set(VERSIONINFO_TARGET_PATCHED_ARG "-DVERSIONINFO_${ARGS_MAP_TARGET}_PATCHED:BOOL=\"${VERSIONINFO_${ARGS_MAP_TARGET}_PATCHED}\"")
+	else()
+	    set(VERSIONINFO_TARGET_PATCHED_ARG)
+	endif()
+
+	if(DEFINED VERSIONINFO_PRERELEASE)
+	    set(VERSIONINFO_PRERELEASE_ARG "-DVERSIONINFO_PRERELEASE:BOOL=\"${VERSIONINFO_PRERELEASE}\"")
+	else()
+	    set(VERSIONINFO_PRERELEASE_ARG)
+	endif()
+
+	if(DEFINED VERSIONINFO_${ARGS_MAP_TARGET}_PRERELEASE)
+	    set(VERSIONINFO_TARGET_PRERELEASE_ARG "-DVERSIONINFO_${ARGS_MAP_TARGET}_PRERELEASE:BOOL=\"${VERSIONINFO_${ARGS_MAP_TARGET}_PRERELEASE}\"")
+	else()
+	    set(VERSIONINFO_TARGET_PRERELEASE_ARG)
+	endif()
+
+	if(DEFINED VERSIONINFO_PRIVATE_BUILD)
+	    set(VERSIONINFO_PRIVATE_BUILD_ARG "-DVERSIONINFO_PRIVATE_BUILD:STRING=\"${VERSIONINFO_PRIVATE_BUILD}\"")
+	else()
+	    set(VERSIONINFO_PRIVATE_BUILD_ARG)
+	endif()
+
+	if(DEFINED VERSIONINFO_${ARGS_MAP_TARGET}_PRIVATE_BUILD)
+	    set(VERSIONINFO_TARGET_PRIVATE_BUILD_ARG "-DVERSIONINFO_${ARGS_MAP_TARGET}_PRIVATE_BUILD:STRING=\"${VERSIONINFO_${ARGS_MAP_TARGET}_PRIVATE_BUILD}\"")
+	else()
+	    set(VERSIONINFO_TARGET_PRVIATE_BUILD_ARG)
+	endif()
+
+	if(DEFINED VERSIONINFO_SPECIAL_BUILD)
+	    set(VERSIONINFO_SPECIAL_BUILD_ARG "-DVERSIONINFO_SPECIAL_BUILD:STRING=\"${VERSIONINFO_SPECIAL_BUILD}\"")
+	else()
+	    set(VERSIONINFO_SPECIAL_BUILD_ARG)
+	endif()
+
+	if(DEFINED VERSIONINFO_${ARGS_MAP_TARGET}_SPECIAL_BUILD)
+	    set(VERSIONINFO_TARGET_SPECIAL_BUILD_ARG "-DVERSIONINFO_${ARGS_MAP_TARGET}_SPECIAL_BUILD:STRING=\"${VERSIONINFO_${ARGS_MAP_TARGET}_SPECIAL_BUILD}\"")
+	else()
+	    set(VERSIONINFO_TARGET_SPECIAL_BUILD_ARG)
+	endif()
+
+	if (WIN32 OR CYGWIN OR MSYS OR MINGW OR DEFINED VERSIONINFO_NON_WIN32_GENERATE)
+    	    add_custom_target("${ARGS_MAP_TARGET}_CheckBuildConfig"
+		BYPRODUCTS "${RESOURCE_FILE_NAME}"
+		COMMENT "Checking for updates to VersionInfo flags..."
+		COMMAND ${CMAKE_COMMAND}
+		    -DGIT_EXECUTABLE:PATH="${GIT_EXECUTABLE}"
+		    -DGIT_WORKING_TREE:BOOL="${GIT_WORKING_TREE}"
+		    -DTARGET_NAME:STRING="${ARGS_MAP_TARGET}"
+		    -DTARGET_SOURCE_DIRECTORY:PATH="${target_source_directory}"
+		    -DTEMPLATE_FILE:PATH="${RESOURCE_TEMPLATE_NAME}"
+		    -DRESOURCE_FILE:PATH="${RESOURCE_FILE_NAME}"
+		    ${VERSIONINFO_PATCHED_ARG}
+		    ${VERSIONINFO_TARGET_PATCHED_ARG}
+		    ${VERSIONINFO_PRERELEASE_ARG}
+		    ${VERSIONINFO_TARGET_PRERELEASE_ARG}
+		    ${VERSIONINFO_PRIVATE_BUILD_ARG}
+		    ${VERSIONINFO_TARGET_PRVIATE_BUILD_ARG}
+		    ${VERSIONINFO_SPECIAL_BUILD_ARG}
+		    ${VERSIONINFO_TARGET_SPECIAL_BUILD_ARG}
+		     -P "${VERSIONINFO_LIST_DIR}/VersionInfo_CheckBuildConfig.cmake")
+	endif()
+    else()
+	versioninfo_fill_content("${RESOURCE_FILE_NAME}" ICON_FILE_NAME)
+    endif()
+endfunction()
+
+
 # Usage:
 #   VersionInfo_Generate(TARGET <target-name>
 #	[ RESOURCE_FILE_NAME <file-name.rc> ]
@@ -577,58 +654,14 @@ function(VersionInfo_Generate)
 	endif()
     endif()
 
-    if(VERSIONINFO_FILE_FLAGS MATCHES "\@\{.*\}")
-	if(ARGS_MAP_RESOURCE_FILENAME)
-	    cmake_path(GET RESOURCE_FILE_NAME PARENT_PATH RESOURCE_FILE_DIR)
-	    cmake_path(GET RESOURCE_FILE_NAME STEM RESOURCE_FILE_BASENAME)
-	    cmake_path(GET RESOURCE_FILE_NAME EXTENSION RESOURCE_FILE_EXT)
-	    cmake_path(APPEND RESOURCE_TEMPLATE_NAME "${RESOURCE_FILE_DIR}" "${RESOURCE_FILE_BASENAME}.template.${RESOURCE_FILE_EXT}")
-	else()
-	    if(generator_is_multi_config)
-		set(RESOURCE_TEMPLATE_NAME "${TARGET_BINARY_DIRECTORY}/${ARGS_MAP_TARGET}_VersionInfo_$<CONFIG>.template.rc")
-	    else()
-		set(RESOURCE_TEMPLATE_NAME "${TARGET_BINARY_DIRECTORY}/${ARGS_MAP_TARGET}_VersionInfo.template.rc")
-	    endif()
-	endif()
-
-	versioninfo_fill_content("${RESOURCE_TEMPLATE_NAME}" ICON_FILE_NAME)
-	get_target_property(target_source_directory ${ARGS_MAP_TARGET} SOURCE_DIR)
-
-	if(TARGET Git::Git)
-	    versioninfo_check_git_working_tree("${target_source_directory}" GIT_WORKING_TREE)
-	else()
-	    set(GIT_WORKING_TREE FALSE)
-	endif()
-
-	if (WIN32 OR CYGWIN OR MSYS OR MINGW OR DEFINED VERSIONINFO_NON_WIN32_GENERATE)
-    	    add_custom_target("${ARGS_MAP_TARGET}_CheckBuildConfig}"
-		BYPRODUCTS "${RESOURCE_FILE_NAME}"
-		COMMENT "Checking build config..."
-		COMMAND ${CMAKE_COMMAND} -P "${VERSIONINFO_LIST_DIR}/VersionInfo_CheckBuildConfig.cmake"
-		    -DGIT_EXECUTABLE:PATH="${GIT_EXECUTABLE}"
-		    -DTARGET_SOURCE_DIRECTORY:PATH="${target_source_directory}"
-		    -DGIT_WORKING_TREE:BOOL="${GIT_WORKING_TREE}"
-		    -DTEMPLTE_FILE:PATH="${RESOURCE_TEMPLATE_NAME}"
-		    -DRESOURCE_FILE:PATH="${RESOURCE_FILE_NAME}"
-		    -DVERSIONINFO_PATCHED:BOOL="${VERSIONINFO_PATCHED}"
-		    -DVERSIONINFO_${ARGS_MAP_TARGET}_PATCHED:BOOL="${VERSIONINFO_${ARGS_MAP_TARGET}_PATCHED}"
-		    -DVERSIONINFO_PRERELEASE:BOOL="${VERSIONINFO_PRERELEASE}"
-		    -DVERSIONINFO_${ARGS_MAP_TARGET}_PRERELEASE:BOOL="${VERSIONINFO_${ARGS_MAP_TARGET}_PRERELEASE}"
-		    -DVERSIONINFO_PRIVATE_BUILD:STRING="${VERSIONINFO_PRIVATE_BUILD}"
-		    -DVERSIONINFO_${ARGS_MAP_TARGET}_PRIVATE_BUILD:STRING="${VERSIONINFO_${ARGS_MAP_TARGET}_PRIVATE_BUILD}"
-		    -DVERSIONINFO_SPECIAL_BUILD:STRING="${VERSIONINFO_SPECIAL_BUILD}"
-		    -DVERSIONINFO_${ARGS_MAP_TARGET}_SPECIAL_BUILD:STRING="${VERSIONINFO_${ARGS_MAP_TARGET}_SPECIAL_BUILD}"
-		CODEGEN)
-	endif()
-    else()
-	versioninfo_fill_content("${RESOURCE_FILE_NAME}" ICON_FILE_NAME)
-    endif()
+    versioninfo_add_generate_step()
 
     if(WIN32 OR CYGWIN OR MSYS OR MINGW)
 	target_sources("${ARGS_MAP_TARGET}" PRIVATE "${RESOURCE_FILE_NAME}")
 
 	if(ICON_FILE_NAME)
 	    set_property(SOURCE "${RESOURCE_FILE_NAME}" APPEND PROPERTY OBJECT_DEPENDS "${ICON_FILE_NAME}")
+	    set_property(SOURCE "${TARGET_BINARY_DIRECTORY}/${ARGS_MAP_TARGET}_VersionInfo_MinSizeRel.rc" APPEND PROPERTY OBJECT_DEPENDS "${ICON_FILE_NAME}")
 	endif()
     endif()
 endfunction()
