@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.31)
 
+include(cmake/LocalModulePath.cmake)
+include(BuildType)
+
 # Set experimental flag to enable `import std` support from CMake.
 # This must be enabled before C++ language support.
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
@@ -12,7 +15,6 @@ project(ODBC-Cmd VERSION 0.1 DESCRIPTION "Portable ODBC library and tools" LANGU
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
-include(cmake/LocalModulePath.cmake)
 include(SetupBoost)
 
 include(odbc++.cmake)

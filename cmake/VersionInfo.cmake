@@ -24,7 +24,7 @@ function(versioninfo_check_git_working_tree DIRECTORY_NAME OUTVAR)
     execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${DIRECTORY_NAME}" rev-parse --show-toplevel
 	OUTPUT_QUIET
 	ERROR_QUIET
-	COMMAND_ECHO STDOUT
+	COMMAND_ECHO NONE
 	RESULT_VARIABLE HAS_WORKING_TREE_RESULT)
 
     if(HAS_WORKING_TREE_RESULT EQUAL 0)
@@ -547,6 +547,7 @@ endfunction()
 
 
 # Usage:
+#
 #   VersionInfo_Generate(TARGET <target-name>
 #	[ RESOURCE_FILE_NAME <file-name.rc> ]
 #	[ ICON [ <name-or-id> ] <icon-filename> ]
@@ -569,10 +570,39 @@ endfunction()
 #	[ FILE_SUBTYPE <file-subtype> ]
 #	[ LEGAL_COPYRIGHT <copyright-text> ]
 #	[ LEGAL_TRADEMARKS <trademarks-text-line>... ]
-#	[ LANGUAGE NONE | <lang-code> <codepage> [ <lang-code> <codepage> ]... ]
+#	[ LANGUAGE NONE | <lang-code> <codepage> [ <lang-code> <codepage> ]... ])
+#
+# All the values above should follow the Microsoft resource compiler documentation on VERSIONINFO resource and ICON resource.
 #
 # Without FILE_VERSION and VERSION, the target property VERSION or the CMake variables PROJECT_VERSION or CMAKE_PROJECT_VERSION will be used as the file version.
 # Without PRODUCT_VERSION and VERSION, the CMake variables PROJECT_VERSION or CMAKE_PROJECT_VERSION will be used as the product version, or the target property VERSION.
+#
+# If no version if given in the function call, and also no target property or global variable above can provide a version number, and error is emittedt.
+# If no description is ginve in the function call, and also no project description is available in the CMake file, an error is emitted.
+# 
+# If not given explicitly, the file flags VS_FF_PATCHED and VS_FF_PRERELEASE will be set at build time by default, depending on the status of your git working tree:
+#	- if the working tree has local changes or staged changes or local commits (not pushed to the remote), then file flag VS_FF_PATCHED will be set
+#	- if the working tree does not have a git tag pointing at the HEAD commit, then file flag VS_FF_PRERELEASE will be set
+#
+# If Git executable is not available at configure time, or the target source directory is not in a git working tree at that time, the above build-time checks are
+# no longer performed, and the file is not marked as either PATCHED nor PRERELEASE.
+#
+# To disable the VS_FF_PRERELEASE flag (and create a release executable), you can set CMake variable VERSIONINFO_RELEASE_BUILD or VERSIONINFO_<TARGET>_RELEASE_BUILD.
+#
+# If not provided in the call to VersionInfo_Generate(), then the PRIVATE_BUILD and SPECIAL_BUILD strings can be given at build time using environment variables.
+#
+# Environment variables can also override the file flags at build time, as follows:
+#   - VERSIONINFO_<TARGET>_PATCHED and VERSIONINFO_PATCHED can be set to control the VS_FF_PATCHED flag
+#   - VERSIONINFO_<TARGET>_PRERELEASE and VERSIONINFO_PRERELEASE can be set to control the VS_FF_PRERELEASE flag
+#   - VERSIONINFO_<TARGET>_PRIVATE_BUILD and VERSIONINFO_PRIVATE_BUILD can be set to control the VS_FF_PRIVATEBUILD flag and the PrivateBuild string value
+#   - VERSIONINFO_<TARGET>_SPECIAL_BUILD and VERSIONINFO_SPECIAL_BUILD can be set to control the VS_FF_SPECIALBUILD flag and the SpecialBuild string value
+#
+# The declared language for the included version strings is English with code page 1252 by default. Trying to provide the same strings in multiple languages is not
+# supported, although the Microsoft resource compiler has support for this. You should write a VERSIONINFO resource file manually if this is what you need.
+#
+# Use VERSIONINFO_LANGUAGE argument to specify the language for the included version strings like company and product name, or legal trademarks, and use the
+# LANGUAGE argument to specify the languages supported by the target executable. The default language is English with code page 1252. If an executable or module does
+# not make use of any language, like implmenting numerical functions only, you can set the LANGUAGE to NONE.
 
 function(VersionInfo_Generate)
     set(ONE_ARG_KEYWORDS)
@@ -660,8 +690,14 @@ function(VersionInfo_Generate)
 	target_sources("${ARGS_MAP_TARGET}" PRIVATE "${RESOURCE_FILE_NAME}")
 
 	if(ICON_FILE_NAME)
-	    set_property(SOURCE "${RESOURCE_FILE_NAME}" APPEND PROPERTY OBJECT_DEPENDS "${ICON_FILE_NAME}")
-	    set_property(SOURCE "${TARGET_BINARY_DIRECTORY}/${ARGS_MAP_TARGET}_VersionInfo_MinSizeRel.rc" APPEND PROPERTY OBJECT_DEPENDS "${ICON_FILE_NAME}")
+	    if(ARGS_MAP_RESOURCE_FILENAME OR NOT generator_is_multi_config)
+		set_property(SOURCE "${RESOURCE_FILE_NAME}" APPEND PROPERTY OBJECT_DEPENDS "${ICON_FILE_NAME}")
+	    else()
+		foreach(CONFIG_NAME_STRING IN LISTS CMAKE_CONFIGURATION_TYPES)
+		    cmake_path(APPEND PER_CONFIG_VERSION_INFO_FILE "${TARGET_BINARY_DIRECTORY}" "${ARGS_MAP_TARGET}_VersionInfo_${CONFIG_NAME_STRING}.rc")
+		    set_property(SOURCE "${PER_CONFIG_VERSION_INFO_FILE}" APPEND PROPERTY OBJECT_DEPENDS "${ICON_FILE_NAME}")
+		endforeach()
+	    endif()
 	endif()
     endif()
 endfunction()
