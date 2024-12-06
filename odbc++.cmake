@@ -2,26 +2,18 @@ include(GNUInstallDirs)
 include(GenerateExportHeader)
 include(VersionInfo)
 
-set(ODBCXX_HEADERS
-    "include/odbc++/FileStreamBuffer.hh"
-    "include/odbc++/FileDescriptorDevice.hh"
-    "include/odbc++/FileDescriptorSink.hh"
-    "include/odbc++/FileDescriptorSource.hh"
-    "include/odbc++/FileDescriptor.hh"
-)
-
-set(ODBCXX_SOURCES
-    "src/odbc++/FileStreamBuffer.cc")
-
 set(ODBCXX_MODULES
+    "src/odbc++/external/boost/iostreams.cc"
     "src/odbc++/WindowsCategory.cc"
     "src/odbc++/Handle.cc"
     "src/odbc++/Environment.cc"
     "src/odbc++/Connection.cc"
-    "src/odbc++/SQLDiagnosticException.cc")
+    "src/odbc++/SQLDiagnosticException.cc"
+    "src/odbc++/FileDescriptorDevice.cc"
+    "src/odbc++/FileDescriptorSink.cc"
+    "src/odbc++/FileDescriptorSource.cc")
 
-add_library(odbc++ SHARED ${ODBCXX_SOURCES})
-target_sources(odbc++ PUBLIC FILE_SET HEADERS TYPE HEADERS BASE_DIRS "include" FILES ${ODBCXX_HEADERS})
+add_library(odbc++ SHARED)
 target_sources(odbc++ PUBLIC FILE_SET CXX_MODULES TYPE CXX_MODULES BASE_DIRS "src/odbc++" FILES ${ODBCXX_MODULES})
 target_include_directories(odbc++ PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 set_target_properties(odbc++
@@ -57,11 +49,10 @@ if(WIN32)
 endif()
 
 VersionInfo_Generate(TARGET odbc++
-    COMMENTS "C++ ODBC Library"
-    FILE_DESCRIPTION "C++ ODBC Library"
-    LEGAL_COPYRIGHT "Copyright (C) 2025 Timothy Madden"
+    COMMENTS "C++ Library for ODBC"
+    FILE_DESCRIPTION "C++ Library for ODBC"
+    LEGAL_COPYRIGHT "Copyright © 2025 Timothy Madden"
     ICON "icon/db_plates.ico"
-    #LEGAL_TRADEMARKS "a b c d"
 )
 
 install(TARGETS odbc++ EXPORT odbc++

@@ -11,11 +11,11 @@ module;
 
 #include "intellisense/project_headers.hh"
 
-#include "odbc++/FileDescriptorDevice.hh"
-#include "odbc++/FileDescriptorSource.hh"
-#include "odbc++/FileDescriptorSink.hh"
-
 export module sqlodbc;
+
+extern "C++" auto main(int argc, char const *argv[]) -> int;
+
+module :private;
 
 #if !defined MSVC_INTELLISENSE
 import std;
@@ -28,6 +28,10 @@ import odbc.WindowsCategory;
 import odbc.Environment;
 import odbc.Connection;
 import odbc.SQLDiagnosticException;
+import odbc.FileDescriptorDevice;
+import odbc.FileDescriptorSink;
+import odbc.FileDescriptorSource;
+
 import Context;
 import CommandHandler;
 #endif
@@ -66,6 +70,14 @@ using odbc::FileDescriptorSource;
 using odbc::SQLDiagnosticException;
 using odbc::Environment;
 using odbc::Connection;
+
+#if defined MSVC_INTELLISENSE
+# undef EXIT_SUCCESS
+# undef EXIT_FAILURE
+#endif
+
+static auto const EXIT_SUCCESS = int { 0 };
+static auto const EXIT_FAILURE = int { 1 };
 
 static auto ScanFirstWord(std::string const &line) -> string::const_iterator
 {

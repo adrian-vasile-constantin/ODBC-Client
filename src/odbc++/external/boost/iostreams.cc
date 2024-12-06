@@ -10,6 +10,11 @@ export module external.boost.iostreams;
 
 namespace external::boost::iostreams
 {
+    export using ::boost::iostreams::closable_tag;
+    export using ::boost::iostreams::device_tag;
+    export using ::boost::iostreams::input_seekable;
+    export using ::boost::iostreams::output_seekable;
+    export using ::boost::iostreams::stream_offset;
     export using ::boost::iostreams::file_descriptor;
     export using ::boost::iostreams::stream_buffer;
     export using ::boost::iostreams::basic_file;

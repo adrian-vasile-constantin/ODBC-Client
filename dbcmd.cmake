@@ -2,7 +2,6 @@ include(GNUInstallDirs)
 include(VersionInfo)
 
 set(SQLODBC_SOURCES
-    "src/dbcmd/external/boost/iostreams.cc"
     "src/dbcmd/Context.cc"
     "src/dbcmd/CommandHandler.cc"
     "src/dbcmd/lib/HistoryList.cc"
@@ -44,7 +43,7 @@ VersionInfo_Generate(TARGET dbcmd
 #    SPECIAL_BUILD ""
     COMMENTS "ODBC Command Prompt and command interpretter"
     FILE_DESCRIPTION "ODBC Command Prompt"
-    LEGAL_COPYRIGHT "Copyright (C) 2025 Timothy Madden"
+    LEGAL_COPYRIGHT "Copyright © 2025 Timothy Madden"
     ICON "icon/db_plates.ico"
 )
 

@@ -9,9 +9,10 @@
 
 #if defined WINDOWS
 # include <windef.h>
-# include <windef.h>
+# include <winbase.h>
 # include <errhandlingapi.h>
 # include <winerror.h>
+# include <fileapi.h>
 #endif
 
 #include <cstddef>
@@ -31,6 +32,11 @@
 #include <exception>
 #include <stdexcept>
 #include <system_error>
+#include <ios>
+#include <filesystem>
+#include <limits>
+
+#include <boost/iostreams/device/file_descriptor.hpp>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -43,6 +49,15 @@
 #include "Connection.hh"
 #include "Environment.hh"
 #include "WindowsCategory.hh"
+
+#include "FileDescriptorDevice.hh"
+#include "FileDescriptorSink.hh"
+#include "FileDescriptorSource.hh"
+
+namespace ext
+{
+    namespace boost = ::boost;
+}
 
 #endif	    // defined __INTELLISENSE__
 

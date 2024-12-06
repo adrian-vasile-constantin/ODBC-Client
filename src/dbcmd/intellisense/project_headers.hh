@@ -45,15 +45,6 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filter/newline.hpp>
 
-namespace external
-{
-    namespace boost = ::boost;
-}
-
-namespace ext = external;
-
-#include <odbc++/SQLDiagnosticException.hh>
-
 #include <../odbc++/intellisense/odbcxx_project_headers.hh>
 
 #include "HistoryList.hh"
