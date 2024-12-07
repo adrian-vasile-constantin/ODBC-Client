@@ -7,6 +7,8 @@
 
 #if defined WINDOWS
 # include <windef.h>
+# include <WinBase.h>
+# include <ShlObj.h>
 #endif
 
 #include <cstddef>

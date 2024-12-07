@@ -25,6 +25,7 @@ namespace winapi
     export using ::GetEnvironmentStrings;
     export using ::FreeEnvironmentStringsA;
     export using ::FreeEnvironmentStringsW;
+    export using ::GetStdHandle;
 
 #if defined _UNICODE || defined UNICODE
     export constexpr auto &FreeEnvironmentStrings = ::FreeEnvironmentStringsW;

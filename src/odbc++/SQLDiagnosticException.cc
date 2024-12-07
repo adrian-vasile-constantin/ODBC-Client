@@ -101,7 +101,7 @@ auto odbc::SQLDiagnosticException::what() const -> char const *
     if (recordListMessage.empty())
     {
 	for (auto const &record: records)
-	    recordListMessage += std::get<0>(record) + " " + std::get<2>(record) + '\n';
+	    recordListMessage += std::get<0>(record) + ' ' + std::get<2>(record) + '\n';
 
 	recordListMessage.pop_back();
     }

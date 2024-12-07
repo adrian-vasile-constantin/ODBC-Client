@@ -22,7 +22,13 @@ import winapi.WTypes;
 
 namespace
 {
+#if !defined __INTELLISENSE__
     using winapi::DWORD;
+#endif
+
+    constexpr auto const
+	local_S_OK	= S_OK,
+	local_S_FALSE	= S_FALSE;
 
     inline bool local_SUCCEEDED(HRESULT hr)
     {
@@ -2808,6 +2814,8 @@ namespace
 #undef HRESULT_FROM_WIN32
 #undef SUCCEEDED
 #undef FAILED
+#undef S_OK
+#undef S_FALSE
 
 #undef ERROR_SUCCESS
 #undef ERROR_INVALID_FUNCTION
@@ -5591,6 +5599,10 @@ namespace winapi
 	return local_FAILED(scode);
     }
     */
+
+    export constexpr auto const
+	S_OK	= local_S_OK,
+	S_FALSE = local_S_FALSE;
 
     namespace error
     {

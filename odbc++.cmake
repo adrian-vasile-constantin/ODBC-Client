@@ -13,6 +13,11 @@ set(ODBCXX_MODULES
     "src/odbc++/winapi/Handle.cc"
     "src/odbc++/winapi/File.cc"
     "src/odbc++/winapi/ProcessEnv.cc"
+    "src/odbc++/winapi/ObjBase.cc"
+    "src/odbc++/winapi/KnownFolders.cc"
+    "src/odbc++/winapi/ShlObj.cc"
+
+    "src/odbc++/sql/cli.cc"
 
     "src/odbc++/WindowsCategory.cc"
     "src/odbc++/Handle.cc"

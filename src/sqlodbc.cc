@@ -1,14 +1,5 @@
 module;
 
-#if defined(_WINDOWS)
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
 #include "intellisense/project_headers.hh"
 
 export module sqlodbc;
@@ -21,10 +12,7 @@ module :private;
 import std;
 import external.boost.iostreams;
 
-#if defined WINDOWS
 import odbc.WindowsCategory;
-#endif
-
 import odbc.Environment;
 import odbc.Connection;
 import odbc.SQLDiagnosticException;
@@ -76,10 +64,11 @@ using odbc::Connection;
 # undef EXIT_FAILURE
 #endif
 
-static auto const EXIT_SUCCESS = int { 0 };
-static auto const EXIT_FAILURE = int { 1 };
+static constexpr auto
+    EXIT_SUCCESS = int { 0 },
+    EXIT_FAILURE = int { 1 };
 
-static auto ScanFirstWord(std::string const &line) -> string::const_iterator
+static auto ScanFirstWord(string const &line) -> string::const_iterator
 {
     return find_if(execution::par_unseq, line.begin(), line.end(), [](char ch)
 	{
@@ -271,7 +260,7 @@ try
 
     context.overrideStandardStreamBuffers(inputStreamBuffer, outputStreamBuffer, logStreamBuffer, errorStreamBuffer);
 
-    cin.exceptions(cin.exceptions() | cin.badbit);
+    cin.exceptions(cin.exceptions()   | cin.badbit);
     cout.exceptions(cout.exceptions() | cout.badbit);
     clog.exceptions(clog.exceptions() | clog.badbit);
     cerr.exceptions(cerr.exceptions() | cerr.badbit);

@@ -56,6 +56,11 @@ namespace
 	local_GMEM_NODISCARD	= GMEM_NODISCARD,
 	local_GMEM_NOT_BANKED	= GMEM_NOT_BANKED,
 	local_GMEM_NOTIFY	= GMEM_NOTIFY;
+
+    constexpr auto
+	local_STD_INPUT_HANDLE	  = STD_INPUT_HANDLE,
+	local_STD_OUTPUT_HANDLE   = STD_OUTPUT_HANDLE,
+	local_STD_ERROR_HANDLE    = STD_ERROR_HANDLE;
 }
 
 #undef FORMAT_MESSAGE_ALLOCATE_BUFFER
@@ -91,6 +96,10 @@ namespace
 #undef GMEM_NODISCARD
 #undef GMEM_NOT_BANKED
 #undef GMEM_NOTIFY
+
+#undef STD_INPUT_HANDLE
+#undef STD_OUTPUT_HANDLE
+#undef STD_ERROR_HANDLE
 
 #undef FormatMessage
 #undef GetEnvironmentVariable
@@ -134,6 +143,11 @@ namespace winapi
 	GMEM_NODISCARD	    = local_GMEM_NODISCARD,
 	GMEM_NOT_BANKED	    = local_GMEM_NOT_BANKED,
 	GMEM_NOTIFY	    = local_GMEM_NOTIFY;
+
+    export constexpr auto
+	STD_INPUT_HANDLE    = local_STD_INPUT_HANDLE,
+	STD_OUTPUT_HANDLE   = local_STD_OUTPUT_HANDLE,
+	STD_ERROR_HANDLE    = local_STD_ERROR_HANDLE;
 
     export using ::OVERLAPPED;
     export using ::LPOVERLAPPED;

@@ -1,18 +1,5 @@
 module;
 
-#if defined WINDOWS
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
-#if defined WINDOWS
-# include <ShlObj.h>
-#endif
-
 #include "intellisense/project_headers.hh"
 
 export module HistoryFile;
@@ -21,6 +8,11 @@ export module HistoryFile;
 import std;
 import external.boost.iostreams;
 import HistoryList;
+#else
+namespace external
+{
+    namespace boost = ::boost;
+}
 #endif
 
 namespace cmd
@@ -118,14 +110,34 @@ inline auto cmd::HistoryFile::getLine(unsigned lineNumber) const -> std::string 
 
 module: private;
 
+using std::getenv;
 using std::unique_ptr;
 using std::distance;
 using std::string;
 using std::string_view;
+using std::getline;
 using std::filesystem::path;
 using std::filesystem::create_directories;
+using std::views::all;
+
 
 #if defined WINDOWS
+
+# if !defined MSVC_INTELLISENSE
+import winapi.WinDef;
+import winapi.WinError;
+import winapi.ObjBase;
+import winapi.KnownFolders;
+import winapi.ShlObj;
+
+using winapi::NULL;
+using winapi::PWSTR;
+using winapi::S_OK;
+using winapi::KF_FLAG_DEFAULT;
+using winapi::FOLDERID_RoamingAppData;
+using winapi::SHGetKnownFolderPath;
+using winapi::CoTaskMemFree;
+# endif
 
 static auto HistoryList_AppConfigPath(string_view appName = "ODBC-Cmd") -> path
 {
@@ -137,11 +149,7 @@ static auto HistoryList_AppConfigPath(string_view appName = "ODBC-Cmd") -> path
 	auto dwResult = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &configPath);
 
 	if (dwResult == S_OK)
-	{
 	    appConfigPath = path { configPath };
-
-	    CoTaskMemFree(configPath);
-	}
 	else
 	{
 	    char const *appDataPath = getenv("APPDATA");;
@@ -151,6 +159,8 @@ static auto HistoryList_AppConfigPath(string_view appName = "ODBC-Cmd") -> path
 	    else
 		appConfigPath = ".";
 	}
+
+	CoTaskMemFree(configPath);
     }
 
     auto configPath = appConfigPath / appName;
@@ -195,9 +205,7 @@ auto cmd::HistoryFile::reload() -> void
 
     auto line = std::string { };
 
-    using std::views::all;
-
-    while (std::getline(historyFile, line).good() && (line.empty() || line[0] != '\x1A'))
+    while (getline(historyFile, line).good() && (line.empty() || line[0] != '\x1A'))
 	if (line | all)
 	{
 	    lines.push_back(line);

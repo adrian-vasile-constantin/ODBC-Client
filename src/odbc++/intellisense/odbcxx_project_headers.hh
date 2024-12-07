@@ -19,7 +19,8 @@
 # include <windef.h>
 # include <winbase.h>
 # include <errhandlingapi.h>
-// # include <winerror.h>
+# include <winerror.h>
+# include <objbase.h>
 # include <fileapi.h>
 #endif
 

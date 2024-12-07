@@ -8,36 +8,49 @@ export module odbc.WindowsCategory;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+
+# if defined WINDOWS
 import winapi.WinDef;
 import winapi.WinError;
 import winapi.ErrHandling;
 import winapi.WinBase;
 import winapi.WinNT;
-
-#if !defined NULL
-using winapi::NULL;
-#endif
-
-using winapi::DWORD;
-using winapi::HLOCAL;
-using winapi::LPSTR;
-using winapi::GetLastError;
-using winapi::LocalFree;
-using winapi::FormatMessageA;
-using winapi::FORMAT_MESSAGE_FROM_SYSTEM;
-using winapi::FORMAT_MESSAGE_ALLOCATE_BUFFER;
-using winapi::FORMAT_MESSAGE_IGNORE_INSERTS;
-using winapi::MAKELANGID;
-using winapi::LANG_NEUTRAL;
-using winapi::SUBLANG_DEFAULT;
-
-using namespace winapi::error;
+# endif
 #endif
 
 namespace odbc
 {
+
+#if !defined MSVC_INTELLISENSE
+# if defined WINDOWS
+    using winapi::NULL;
+
+    using winapi::DWORD;
+    using winapi::HLOCAL;
+    using winapi::LPSTR;
+    using winapi::GetLastError;
+    using winapi::LocalFree;
+    using winapi::FormatMessageA;
+    using winapi::FORMAT_MESSAGE_FROM_SYSTEM;
+    using winapi::FORMAT_MESSAGE_ALLOCATE_BUFFER;
+    using winapi::FORMAT_MESSAGE_IGNORE_INSERTS;
+    using winapi::MAKELANGID;		    // deprecated
+    using winapi::LANG_NEUTRAL;		    // deprecated
+    using winapi::SUBLANG_DEFAULT;	    // deprecated
+
+    using namespace winapi::error;
+# else
+    using DWORD = std::uint_least32_t;
+    extern "C" auto GetLastError(void) -> DWORD;
+# endif
+#else
+# undef NO_DATA	    // from <winsock.h>, for IntelliSense only
+#endif
+
     export enum class ODBCXX_EXPORT WindowsError: DWORD
     {
+#if defined WINDOWS
+
 	ACCESS_DENIED		    = ERROR_ACCESS_DENIED,
 	ACCOUNT_DISABLED	    = ERROR_ACCOUNT_DISABLED,
 	ACCOUNT_RESTRICTION	    = ERROR_ACCOUNT_RESTRICTION,
@@ -230,6 +243,8 @@ namespace odbc
 	WRITE_FAULT		    = ERROR_WRITE_FAULT,
 	WRITE_PROTECT		    = ERROR_WRITE_PROTECT,
 	WRONG_DISK		    = ERROR_WRONG_DISK
+
+#endif
     };
 
     export auto operator +(WindowsError err)->std::underlying_type<WindowsError>::type;
@@ -307,6 +322,8 @@ odbc::WindowsCategory const &odbc::windows_category()
 
 error_condition odbc::WindowsCategory::default_error_condition(int ev) const noexcept
 {
+#if defined WINDOWS
+
     if (ev == ERROR_SUCCESS)
 	return error_condition(0, generic_category());
 
@@ -510,13 +527,19 @@ error_condition odbc::WindowsCategory::default_error_condition(int ev) const noe
 
     if (error == errc { })
 	return error_condition(ev, windows_category());
-    else
-	return error_condition(static_cast<int>(error), generic_category());
+
+    return error_condition(static_cast<int>(error), generic_category());
+
+#else
+    return error_condition(ev, windows_category());
+#endif
 }
 
 string odbc::WindowsCategory::message(int ev) const
 {
-    HLOCAL pMessage = NULL;
+#if defined WINDOWS
+
+    auto pMessage = HLOCAL { NULL };
 
     unique_ptr<HLOCAL, void (*)(HLOCAL *)> cleanUpHandle { &pMessage, [](HLOCAL *pp)
 	    {
@@ -524,13 +547,12 @@ string odbc::WindowsCategory::message(int ev) const
 		    ::LocalFree(exchange(*pp, HLOCAL { NULL }));
 	    } };
 
-    DWORD dwCharCount =
-	::FormatMessageA
+    auto dwCharCount = ::FormatMessageA
 	    (
 		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL,
 		static_cast<DWORD>(ev),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),		// LCIDs are deprecated (cannot represent all languages)
 		static_cast<LPSTR>(static_cast<void *>(&pMessage)),
 		0u,
 		NULL
@@ -539,10 +561,14 @@ string odbc::WindowsCategory::message(int ev) const
     if (!dwCharCount)
 	return "(Failed to format message for Windows API error "s + to_string(static_cast<DWORD>(ev)) + ')';
 
-    string errorMessage { static_cast<char const *>(pMessage), dwCharCount };
+    auto errorMessage = string { static_cast<char const *>(pMessage), dwCharCount };
 
     while (errorMessage.size() && (errorMessage.back() == '\n' || errorMessage.back() == '\r'))
 	errorMessage.pop_back();
 
     return errorMessage;
+
+#else
+    return "Windows API error "s + to_string(static_cast<DWORD>(ev));
+#endif
 }

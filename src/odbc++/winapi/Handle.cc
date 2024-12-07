@@ -9,7 +9,6 @@ module;
 # endif
 #endif
 
-
 #include <windef.h>
 #include <handleapi.h>
 

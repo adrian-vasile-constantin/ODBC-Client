@@ -1,24 +1,19 @@
 module;
 
-#if defined(_WINDOWS)
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
 #include "intellisense/project_headers.hh"
-
-#if defined WINDOWS
-# include <windows.h>
-#endif
 
 export module Context;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+
+# if defined WINDOWS
+import winapi.WinDef;
+import winapi.ProcessEnv;
+import winapi.WinBase;
+import winapi.File;
+# endif
+
 import odbc.Environment;
 import odbc.Connection;
 #endif
@@ -26,17 +21,20 @@ import odbc.Connection;
 export class Context
 {
 public:
-    static bool isStdInInteractive();
+    static auto isStdInInteractive() -> bool;
 
-#if defined(_WINDOWS)
+#if defined WINDOWS
+# if !defined __INTELLISENSE__
+    using HANDLE = winapi::HANDLE;
+# endif
     using NativeDescriptor = HANDLE;
 #else
     using NativeDescriptor = int;
 #endif
 
-    static NativeDescriptor nativeStandardInput();
-    static NativeDescriptor nativeStandardOutput();
-    static NativeDescriptor nativeStandardError();
+    static auto nativeStandardInput() -> NativeDescriptor;
+    static auto nativeStandardOutput() -> NativeDescriptor;
+    static auto nativeStandardError() -> NativeDescriptor;
 
     bool interactive;
     odbc::Environment env;
@@ -112,6 +110,16 @@ using std::views::enumerate;
 using std::views::zip;
 
 #if defined WINDOWS
+
+# if !defined __INTELLISENSE__
+using winapi::FILE_TYPE_CHAR;
+using winapi::STD_INPUT_HANDLE;
+using winapi::STD_OUTPUT_HANDLE;
+using winapi::STD_ERROR_HANDLE;
+
+using winapi::GetFileType;
+using winapi::GetStdHandle;
+# endif
 
 bool Context::isStdInInteractive()
 {

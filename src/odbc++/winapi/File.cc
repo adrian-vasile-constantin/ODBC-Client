@@ -88,6 +88,13 @@ namespace
 	local_SECURITY_EFFECTIVE_ONLY		   = SECURITY_EFFECTIVE_ONLY,
 	local_SECURITY_IDENTIFICATION		   = SECURITY_IDENTIFICATION,
 	local_SECURITY_IMPERSONATION		   = SECURITY_IMPERSONATION;
+
+    constexpr auto
+	local_FILE_TYPE_CHAR	= FILE_TYPE_CHAR,
+	local_FILE_TYPE_DISK	= FILE_TYPE_DISK,
+	local_FILE_TYPE_PIPE	= FILE_TYPE_PIPE,
+	local_FILE_TYPE_REMOTE	= FILE_TYPE_REMOTE,
+	local_FILE_TYPE_UNKNOWN = FILE_TYPE_UNKNOWN;
 }
 
 #undef FILE_BEGIN
@@ -144,6 +151,13 @@ namespace
 #undef SECURITY_EFFECTIVE_ONLY
 #undef SECURITY_IDENTIFICATION
 #undef SECURITY_IMPERSONATION
+
+#undef FILE_TYPE_CHAR
+#undef FILE_TYPE_DISK
+#undef FILE_TYPE_PIPE
+#undef FILE_TYPE_REMOTE
+#undef FILE_TYPE_UNKNOWN
+
 
 #undef CreateFile
 
@@ -211,11 +225,19 @@ namespace winapi
 	SECURITY_IDENTIFICATION		   = local_SECURITY_IDENTIFICATION,
 	SECURITY_IMPERSONATION		   = local_SECURITY_IMPERSONATION;
 
+    export constexpr auto
+	FILE_TYPE_CHAR	  = local_FILE_TYPE_CHAR,
+	FILE_TYPE_DISK	  = local_FILE_TYPE_DISK,
+	FILE_TYPE_PIPE	  = local_FILE_TYPE_PIPE,
+	ILE_TYPE_REMOTE	  = local_FILE_TYPE_REMOTE,
+	FILE_TYPE_UNKNOWN = local_FILE_TYPE_UNKNOWN;
+
     export using ::SetFilePointerEx;
     export using ::ReadFile;
     export using ::WriteFile;
     export using ::CreateFileW;
     export using ::CreateFileA;
+    export using ::GetFileType;
 
 #if defined _UNICODE || defined UNICODE
     export auto &CreateFile = CreateFileW;
