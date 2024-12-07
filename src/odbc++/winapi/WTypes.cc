@@ -33,4 +33,8 @@ namespace winapi
     export using ::STGMOVE;
     export using ::TYSPEC;
     export using ::VARENUM;
+
+    export using ::SECURITY_ATTRIBUTES;
+    export using ::PSECURITY_ATTRIBUTES;
+    export using ::LPSECURITY_ATTRIBUTES;
 }

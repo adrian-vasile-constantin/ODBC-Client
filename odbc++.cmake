@@ -10,6 +10,9 @@ set(ODBCXX_MODULES
     "src/odbc++/winapi/ErrHandling.cc"
     "src/odbc++/winapi/WTypes.cc"
     "src/odbc++/winapi/WinNT.cc"
+    "src/odbc++/winapi/Handle.cc"
+    "src/odbc++/winapi/File.cc"
+
     "src/odbc++/WindowsCategory.cc"
     "src/odbc++/Handle.cc"
     "src/odbc++/Environment.cc"

@@ -157,11 +157,15 @@ static tuple<string, string, string> parseEnvCommand(string const &command, stri
     return tuple { string { varName }, string { applyOp }, string { newValue } };
 }
 
+#if defined(_WINDOWS)
+extern "C" int __cdecl putenv(char const *_EnvString);		// Not exposed with std module
+#endif
+
 static void removeEnvVar(string const &varName)
 {
 #if defined(_WINDOWS)
-    if (!::SetEnvironmentVariable(varName.c_str(), NULL))
-	throw system_error { windows_error_code(), "Failed to remove environment variable "s + varName };
+    if (putenv((varName + "="s).c_str()) < 0)
+	throw runtime_error("Error removing environment variable"s);
 #else
     unsetenv(varName.c_str());
 #endif
@@ -170,8 +174,8 @@ static void removeEnvVar(string const &varName)
 static void setEnvVar(string const &varName, string const &newValue)
 {
 #if defined(_WINDOWS)
-    if (BOOL fVarUpdated = ::SetEnvironmentVariable(varName.c_str(), newValue.c_str()); !fVarUpdated)
-	throw system_error(windows_error_code(), "Failed to update environment variable "s + varName + " to "s + newValue);
+    if (putenv((varName + "="s + newValue).c_str()) < 0)
+	throw runtime_error("Error setting environment variable"s);
 #else
     string envLine = varName + "="s + newValue;
     setenv(varName.c_str(), newValue.c_str());

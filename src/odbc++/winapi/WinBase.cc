@@ -133,6 +133,9 @@ namespace winapi
 	GMEM_NOT_BANKED	    = local_GMEM_NOT_BANKED,
 	GMEM_NOTIFY	    = local_GMEM_NOTIFY;
 
+    export using ::OVERLAPPED;
+    export using ::LPOVERLAPPED;
+
     export using ::LocalAlloc;
     export using ::GlobalAlloc;
     export using ::LocalFree;

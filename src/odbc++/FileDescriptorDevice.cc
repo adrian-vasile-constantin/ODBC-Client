@@ -1,21 +1,5 @@
 module;
 
-#if defined(_WINDOWS)
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
-#if defined WINDOWS
-# include <windef.h>
-# include <winbase.h>
-# include <errhandlingapi.h>
-# include <fileapi.h>
-#endif
-
 #include "ODBCXX_Export.h"
 
 #include "intellisense/odbcxx_project_headers.hh"
@@ -24,8 +8,39 @@ export module odbc.FileDescriptorDevice;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+
 import external.boost.iostreams;
+
+import winapi.WinDef;
+import winapi.Handle;
+import winapi.WinNT;
+import winapi.File;
+
 import odbc.WindowsCategory;
+
+using winapi::NULL;
+
+using winapi::INVALID_HANDLE_VALUE;
+
+using winapi::FILE_BEGIN;
+using winapi::FILE_CURRENT;
+using winapi::FILE_END;
+
+using winapi::CREATE_ALWAYS;
+using winapi::OPEN_ALWAYS;
+using winapi::OPEN_EXISTING;
+using winapi::FILE_SHARE_READ;
+using winapi::GENERIC_READ;
+using winapi::GENERIC_WRITE;
+using winapi::FILE_ATTRIBUTE_NORMAL;
+
+using winapi::CloseHandle;
+using winapi::SetFilePointerEx;
+using winapi::WriteFile;
+using winapi::ReadFile;
+using winapi::CreateFileA;
+using winapi::CreateFileW;
+
 #endif
 
 namespace odbc
