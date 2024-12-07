@@ -208,16 +208,7 @@ namespace odbc
     auto windows_error_code(DWORD dwLastError = ::GetLastError()) -> std::error_code;
     auto make_error_code(odbc::WindowsError dwLastError) -> std::error_code;
 
-    ODBCXX_EXPORT class ODBCXX_EXPORT WindowsCategory: public std::error_category
-    {
-    public:
-	virtual char const *name() const noexcept override;
-	virtual std::error_condition default_error_condition(int ev) const noexcept override;
-	virtual bool equivalent(int code, std::error_condition const &condition) const noexcept;
-	// virtual bool equivalent(std::error_code const &code, int condition) const noexcept;
-	virtual std::string message(int ev) const override;
-    }
-	const &windows_category();
+    class WindowsCategory const &windows_category();
 }
 
 #endif	    // defined MSVC_INTELLISENSE

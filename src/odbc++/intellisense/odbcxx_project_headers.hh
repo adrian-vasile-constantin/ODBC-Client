@@ -8,10 +8,18 @@
 # define MSVC_INTELLISENSE 1
 
 #if defined WINDOWS
+
+# if defined(_M_AMD64) && !defined(_AMD64_)
+#   define _AMD64_
+# endif
+# if defined(_M_IX86) && !defined(_X68_)
+#  define _X86_
+# endif
+
 # include <windef.h>
 # include <winbase.h>
 # include <errhandlingapi.h>
-# include <winerror.h>
+// # include <winerror.h>
 # include <fileapi.h>
 #endif
 

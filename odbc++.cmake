@@ -4,6 +4,12 @@ include(VersionInfo)
 
 set(ODBCXX_MODULES
     "src/odbc++/external/boost/iostreams.cc"
+    "src/odbc++/winapi/WinDef.cc"
+    "src/odbc++/winapi/WinBase.cc"
+    "SRC/ODBC++/winapi/WinError.cc"
+    "src/odbc++/winapi/ErrHandling.cc"
+    "src/odbc++/winapi/WTypes.cc"
+    "src/odbc++/winapi/WinNT.cc"
     "src/odbc++/WindowsCategory.cc"
     "src/odbc++/Handle.cc"
     "src/odbc++/Environment.cc"
