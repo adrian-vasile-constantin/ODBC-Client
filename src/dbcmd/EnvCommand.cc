@@ -1,27 +1,13 @@
 module;
 
-#if defined(_WINDOWS)
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
 #include "intellisense/project_headers.hh"
-
-#if defined WINDOWS
-# include <windef.h>
-# include <WinBase.h>
-# include <processenv.h>
-#endif
-
 
 export module EnvCommand;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+import winapi.WinDef;
+import winapi.ProcessEnv;
 
 #if defined WINDOWS
 import odbc.WindowsCategory;
@@ -29,6 +15,9 @@ import odbc.WindowsCategory;
 
 import Context;
 import CommandHandler;
+
+using winapi::GetEnvironmentStrings;
+using winapi::FreeEnvironmentStringsA;
 #endif
 
 class EnvCommand: public CommandHandler
@@ -54,6 +43,7 @@ inline std::unique_ptr<HandlerFunctor> EnvCommand::handlerFunctor(Context &conte
 
 module :private;
 
+using std::strlen;
 using std::unique_ptr;
 using std::tuple;
 using std::set;
@@ -186,7 +176,7 @@ static void showEnvironment(ostream &cout)
 {
 #if defined WINDOWS
 
-    unique_ptr<CHAR [], decltype((FreeEnvironmentStrings))> env { GetEnvironmentStrings(), FreeEnvironmentStrings };
+    unique_ptr<CHAR [], decltype((FreeEnvironmentStringsA))> env { GetEnvironmentStrings(), FreeEnvironmentStringsA };
 
     if (CHAR const *pEnv = env.get())
     {

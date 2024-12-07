@@ -93,6 +93,8 @@ namespace
 #undef GMEM_NOTIFY
 
 #undef FormatMessage
+#undef GetEnvironmentVariable
+#undef SetEnvironmentVariable
 
 namespace winapi
 {
@@ -141,12 +143,22 @@ namespace winapi
     export using ::LocalFree;
     export using ::GlobalFree;
 
-#if defined UNICODE || defined _UNICODE
-    export constexpr auto &FormatMessage = ::FormatMessageW;
-#else
-    export constexpr auto &FormatMessage = ::FormatMessageA;
-#endif
-
     export using ::FormatMessageA;
     export using ::FormatMessageW;
+
+    export using ::GetEnvironmentVariableA;
+    export using ::GetEnvironmentVariableW;
+
+    export using ::SetEnvironmentVariableA;
+    export using ::SetEnvironmentVariableW;
+
+#if defined UNICODE || defined _UNICODE
+    export constexpr auto &FormatMessage = ::FormatMessageW;
+    export constexpr auto &GetEnvironmentVariable = ::GetEnvironmentVariableW;
+    export constexpr auto &SetEnvironmentVariable = ::SetEnvironmentVariableW;
+#else
+    export constexpr auto &FormatMessage = ::FormatMessageA;
+    export constexpr auto &GetEnvironmentVariable = ::GetEnvironmentVariableA;
+    export constexpr auto &SetEnvironmentVariable = ::SetEnvironmentVariableA;
+#endif
 }
