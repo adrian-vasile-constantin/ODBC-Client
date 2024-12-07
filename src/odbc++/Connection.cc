@@ -1,21 +1,5 @@
 module;
 
-#if defined(_WINDOWS)
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
-#if defined WINDOWS
-# include <windef.h>
-#endif
-
-#include <sql.h>
-#include <sqlext.h>
-
 #include "intellisense/odbcxx_project_headers.hh"
 
 #include "ODBCXX_export.h"
@@ -24,6 +8,7 @@ export module odbc.Connection;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+import sql.cli;
 import odbc.Handle;
 import odbc.Environment;
 import odbc.SQLDiagnosticException;
@@ -31,6 +16,11 @@ import odbc.SQLDiagnosticException;
 
 namespace odbc
 {
+#if !defined MSVC_INTELLISENSE
+    using sql::SQLCHAR;
+    using sql::SQLHDBC;
+    using sql::SQL_HANDLE_DBC;
+#endif
     export class ODBCXX_EXPORT Connection: protected Handle
     {
     public:
@@ -92,6 +82,7 @@ using std::size_t;
 using std::map;
 using std::span;
 using std::string;
+using std::tolower;
 using std::reduce;
 using std::transform;
 using std::find;
@@ -99,6 +90,17 @@ using std::runtime_error;
 using std::uncaught_exceptions;
 using namespace std::literals::string_literals;
 namespace execution = std::execution;
+
+#if !defined MSVC_INTELLISENSE
+using sql::SQL_SUCCESS;
+using sql::SQL_SUCCESS_WITH_INFO;
+using sql::SQL_NEED_DATA;
+using sql::SQL_STILL_EXECUTING;
+using sql::SQL_ERROR;
+
+using sql::SQLBrowseConnect;
+using sql::SQLDisconnect;
+#endif
 
 using odbc::SQLDiagnosticException;
 

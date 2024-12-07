@@ -1,22 +1,5 @@
 module;
 
-#if defined(_WINDOWS)
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
-#if defined WINDOWS
-# include <windef.h>
-#endif
-
-#include <sql.h>
-#include <sqlext.h>
-#include <sqlucode.h>
-
 #include "intellisense/odbcxx_project_headers.hh"
 
 #include "ODBCXX_export.h"
@@ -26,10 +9,15 @@ export module odbc.SQLDiagnosticException;
 #if !defined MSVC_INTELLISENSE
 import std;
 import odbc.Handle;
+import sql.cli;
 #endif
 
 namespace odbc
 {
+#if !defined MSVC_INTELLISENSE
+    using sql::SQLINTEGER;
+#endif
+
     export class ODBCXX_EXPORT SQLDiagnosticException: public std::runtime_error
     {
     protected:

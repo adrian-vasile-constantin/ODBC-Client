@@ -167,12 +167,12 @@ namespace winapi
     export using ::SetEnvironmentVariableW;
 
 #if defined UNICODE || defined _UNICODE
-    export constexpr auto &FormatMessage = ::FormatMessageW;
-    export constexpr auto &GetEnvironmentVariable = ::GetEnvironmentVariableW;
-    export constexpr auto &SetEnvironmentVariable = ::SetEnvironmentVariableW;
+    export constexpr auto const &FormatMessage = ::FormatMessageW;
+    export constexpr auto const &GetEnvironmentVariable = ::GetEnvironmentVariableW;
+    export constexpr auto const &SetEnvironmentVariable = ::SetEnvironmentVariableW;
 #else
-    export constexpr auto &FormatMessage = ::FormatMessageA;
-    export constexpr auto &GetEnvironmentVariable = ::GetEnvironmentVariableA;
-    export constexpr auto &SetEnvironmentVariable = ::SetEnvironmentVariableA;
+    export constexpr auto const &FormatMessage = ::FormatMessageA;
+    export constexpr auto const &GetEnvironmentVariable = ::GetEnvironmentVariableA;
+    export constexpr auto const &SetEnvironmentVariable = ::SetEnvironmentVariableA;
 #endif
 }

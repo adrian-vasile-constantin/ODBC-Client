@@ -1,22 +1,5 @@
 module;
 
-#if defined(_WINDOWS)
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
-#if defined WINDOWS
-# include <windef.h>
-#endif
-
-#include <sql.h>
-#include <sqlext.h>
-#include <sqlucode.h>
-
 #include "intellisense/odbcxx_project_headers.hh"
 
 #include "ODBCXX_export.h"
@@ -25,11 +8,27 @@ export module odbc.Environment;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+import sql.cli;
 import odbc.Handle;
 #endif
 
 namespace odbc
 {
+#if !defined MSVC_INTELLISENSE
+    using std::uintptr_t;
+
+    using sql::SQLSMALLINT;
+    using sql::SQLUSMALLINT;
+    using sql::SQLHENV;
+    using sql::SQL_HANDLE_ENV;
+    using sql::SQL_NULL_HANDLE;
+    using sql::SQL_ATTR_ODBC_VERSION;
+    using sql::SQL_OV_ODBC2;
+    using sql::SQL_OV_ODBC3;
+    using sql::SQL_OV_ODBC3_80;
+    using sql::SQLSetEnvAttr;
+#endif
+
     export class ODBCXX_EXPORT Environment: protected Handle
     {
     protected:
@@ -54,7 +53,7 @@ namespace odbc
 	using Handle::diagnosticRecords;
 
 	template <typename StringT, typename CharT>
-	static std::map<std::string, std::string> splitAttributes(StringT const &inputLine, CharT separator = ';');
+	    static std::map<std::string, std::string> splitAttributes(StringT const &inputLine, CharT separator = ';');
     };
 }
 
@@ -116,6 +115,16 @@ using std::find;
 using std::move;
 
 namespace execution = std::execution;
+
+#if !defined MSVC_INTELLISENSE
+using sql::SQL_SUCCESS;
+using sql::SQL_SUCCESS_WITH_INFO;
+using sql::SQL_NO_DATA;
+using sql::SQL_ERROR;
+using sql::SQL_FETCH_FIRST;
+using sql::SQL_FETCH_NEXT;
+using sql::SQLDrivers;
+#endif
 
 void odbc::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &driverInfo)
 {

@@ -28,8 +28,8 @@ namespace winapi
     export using ::GetStdHandle;
 
 #if defined _UNICODE || defined UNICODE
-    export constexpr auto &FreeEnvironmentStrings = ::FreeEnvironmentStringsW;
+    export constexpr auto const &FreeEnvironmentStrings = ::FreeEnvironmentStringsW;
 #else
-    export constexpr auto &FreeEnvironmentStrings = ::FreeEnvironmentStringsA;
+    export constexpr auto const &FreeEnvironmentStrings = ::FreeEnvironmentStringsA;
 #endif
 }

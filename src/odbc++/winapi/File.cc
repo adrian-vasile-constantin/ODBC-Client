@@ -240,8 +240,8 @@ namespace winapi
     export using ::GetFileType;
 
 #if defined _UNICODE || defined UNICODE
-    export auto &CreateFile = CreateFileW;
+    export constexpr auto const &CreateFile = CreateFileW;
 #else
-    export auto &CreateFile = CreateFileA;
+    export constexpr auto const &CreateFile = CreateFileA;
 #endif
 }

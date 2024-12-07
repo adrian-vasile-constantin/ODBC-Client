@@ -1,22 +1,5 @@
 module;
 
-#if defined(_WINDOWS)
-# if defined(_M_AMD64) && !defined(_AMD64_)
-#   define _AMD64_
-# endif
-# if defined(_M_IX86) && !defined(_X68_)
-#  define _X86_
-# endif
-#endif
-
-#if defined WINDOWS
-# include <windef.h>
-#endif
-
-#include <sql.h>
-#include <sqlext.h>
-#include <sqlucode.h>
-
 #include "intellisense/odbcxx_project_headers.hh"
 
 #include "ODBCXX_export.h"
@@ -25,10 +8,28 @@ export module odbc.Handle;
 
 #if !defined MSVC_INTELLISENSE
 import std;
+import sql.cli;
 #endif
 
 namespace odbc
 {
+#if !defined MSVC_INTELLISENSE
+    using sql::SQLCHAR;
+    using sql::SQLSMALLINT;
+    using sql::SQLINTEGER;
+    using sql::SQLHANDLE;
+    using sql::SQL_NULL_HANDLE;
+    using sql::SQL_SUCCESS;
+    using sql::SQL_SUCCESS_WITH_INFO;
+    using sql::SQL_NO_DATA;
+    using sql::SQL_NEED_DATA;
+    using sql::SQL_ERROR;
+    using sql::SQL_STILL_EXECUTING;
+    using sql::SQL_INVALID_HANDLE;
+    using sql::SQLAllocHandle;
+    using sql::SQLFreeHandle;
+#endif
+
     export class ODBCXX_EXPORT Handle
     {
     protected:
@@ -111,6 +112,10 @@ using std::tuple;
 using std::get;
 using std::vector;
 using namespace std::literals::string_literals;
+
+#if !defined MSVC_INTELLISENSE
+using sql::SQLGetDiagRec;
+#endif
 
 static char const
     invalidHandleMessage[] = "(Unable to read message from SQL diagnostic area from ODBC: SQL_INVALID_HANDLE)",
