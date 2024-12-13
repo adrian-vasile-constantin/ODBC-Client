@@ -17,7 +17,9 @@ set(LOCAL_BOOST_LIBRARY_LIST
 	"range"
 	"iterator"
 	"detail"
-	"concept_check")
+	"concept_check"
+	"move"
+	"intrusive")
 
 if (Git_FOUND)
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/boost/CMakeLists.txt")

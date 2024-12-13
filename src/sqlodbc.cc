@@ -10,7 +10,7 @@ module :private;
 
 #if !defined MSVC_INTELLISENSE
 import std;
-import external.boost.iostreams;
+import local.boost.iostreams;
 
 import odbc.WindowsCategory;
 import odbc.Environment;
@@ -256,7 +256,7 @@ try
     auto inputStreamBuffer = stream_buffer<FileDescriptorSource> { inputDescriptor };
     // auto outputStreamBuffer = stream_buffer<FileDescriptorSink> {outputDescriptor };
     // auto errorStreamBuffer = stream_buffer<FileDescriptorSink> { errorDescriptor };
-    
+
 
     context.overrideStandardStreamBuffers(inputStreamBuffer, outputStreamBuffer, logStreamBuffer, errorStreamBuffer);
 

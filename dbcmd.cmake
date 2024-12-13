@@ -4,7 +4,8 @@ include(VersionInfo)
 set(SQLODBC_SOURCES
     "src/dbcmd/Context.cc"
     "src/dbcmd/CommandHandler.cc"
-    "src/dbcmd/lib/HistoryList.cc"
+    "src/dbcmd/lib/HistoryMultiList.cc"
+    "src/dbcmd/lib/HistoryUniqueList.cc"
     "src/dbcmd/lib/HistoryFile.cc"
     "src/dbcmd/lib/HistoryCache.cc"
     "src/dbcmd/browseConnect.cc"

@@ -6,9 +6,9 @@ module;
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filter/newline.hpp>
 
-export module external.boost.iostreams;
+export module local.boost.iostreams;
 
-namespace external::boost::iostreams
+namespace local::boost::iostreams
 {
     export using ::boost::iostreams::closable_tag;
     export using ::boost::iostreams::device_tag;
@@ -40,4 +40,4 @@ namespace external::boost::iostreams
     }
 }
 
-export namespace ext = external;
+export namespace ext = local;

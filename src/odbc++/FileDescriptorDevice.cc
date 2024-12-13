@@ -9,7 +9,7 @@ export module odbc.FileDescriptorDevice;
 #if !defined MSVC_INTELLISENSE
 import std;
 
-import external.boost.iostreams;
+import local.boost.iostreams;
 
 import winapi.WinDef;
 import winapi.Handle;

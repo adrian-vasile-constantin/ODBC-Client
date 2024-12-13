@@ -8,7 +8,7 @@ export module odbc.FileDescriptorSink;
 
 #if !defined MSVC_INTELLISENSE
 import std;
-import external.boost.iostreams;
+import local.boost.iostreams;
 import odbc.FileDescriptorDevice;
 #endif
 

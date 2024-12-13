@@ -47,9 +47,17 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filter/newline.hpp>
 
+#include <boost/intrusive/any_hook.hpp>
+#include <boost/intrusive/slist.hpp>
+#include <boost/intrusive/list.hpp>
+#include <boost/intrusive/set.hpp>
+#include <boost/intrusive/parent_from_member.hpp>
+
+
 #include <../odbc++/intellisense/odbcxx_project_headers.hh>
 
-#include "HistoryList.hh"
+#include "HistoryUniqueList.hh"
+#include "HistoryMultiList.hh"
 #include "HistoryFile.hh"
 #include "HistoryCache.hh"
 

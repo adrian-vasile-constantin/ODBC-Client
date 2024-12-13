@@ -3,7 +3,8 @@ include(GenerateExportHeader)
 include(VersionInfo)
 
 set(ODBCXX_MODULES
-    "src/odbc++/external/boost/iostreams.cc"
+    "src/odbc++/local/boost/iostreams.cc"
+    "src/odbc++/local/boost/intrusive.cc"
     "src/odbc++/winapi/WinDef.cc"
     "src/odbc++/winapi/WinBase.cc"
     "SRC/ODBC++/winapi/WinError.cc"

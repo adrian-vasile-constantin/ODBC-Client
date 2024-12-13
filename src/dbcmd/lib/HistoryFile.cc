@@ -6,10 +6,10 @@ export module HistoryFile;
 
 #if !defined MSVC_INTELLISENSE
 import std;
-import external.boost.iostreams;
-import HistoryList;
+import local.boost.iostreams;
+import HistoryUniqueList;
 #else
-namespace external
+namespace ext
 {
     namespace boost = ::boost;
 }
@@ -26,14 +26,14 @@ namespace cmd
 	using Index = std::vector<std::pair<pos_type, Container::const_iterator>>;
 
 	template <typename CharT>
-	    using basic_file = external::boost::iostreams::basic_file<CharT>;
+	    using basic_file = ext::boost::iostreams::basic_file<CharT>;
 
 	template
 	    <
 		typename DeviceT,
-		typename TraitsT = external::boost::iostreams::stream_buffer<DeviceT>::traits_type
+		typename TraitsT = ext::boost::iostreams::stream_buffer<DeviceT>::traits_type
 	    >
-	    using stream_buffer = external::boost::iostreams::stream_buffer<DeviceT, TraitsT>;
+	    using stream_buffer = ext::boost::iostreams::stream_buffer<DeviceT, TraitsT>;
 
 	static const auto OUT_OF_RANGE_COUNT = (std::numeric_limits<unsigned>::max)();
 	unsigned listCapacity = 1024u;
@@ -139,7 +139,7 @@ using winapi::SHGetKnownFolderPath;
 using winapi::CoTaskMemFree;
 # endif
 
-static auto HistoryList_AppConfigPath(string_view appName = "ODBC-Cmd") -> path
+static auto HistoryUniqueList_AppConfigPath(string_view appName = "ODBC-Cmd") -> path
 {
     static auto appConfigPath = path { };
 
@@ -174,17 +174,17 @@ static auto HistoryList_AppConfigPath(string_view appName = "ODBC-Cmd") -> path
 # error Not implemented, use getent() and getenv("HOME")/.config/$appName
 #endif
 
-static auto HistoryList_MakeAppConfigPath(path const &file_path) -> path
+static auto HistoryUniqueList_MakeAppConfigPath(path const &file_path) -> path
 {
     return distance(file_path.begin(), file_path.end()) > 1 && !file_path.begin()->empty()
 	? file_path
-	: HistoryList_AppConfigPath() / file_path;
+	: HistoryUniqueList_AppConfigPath() / file_path;
 }
 
 cmd::HistoryFile::HistoryFile(path const &file_path):
     historyFile(localFile)
 {
-    file_stream_buffer.open(HistoryList_MakeAppConfigPath(file_path).string());
+    file_stream_buffer.open(HistoryUniqueList_MakeAppConfigPath(file_path).string());
     historyFile.exceptions(historyFile.exceptions() | historyFile.badbit);
     reload();
 }

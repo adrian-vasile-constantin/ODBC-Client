@@ -6,7 +6,8 @@ export module HistoryCache;
 
 #if !defined MSVC_INTELLISENSE
 import std;
-import HistoryList;
+import HistoryUniqueList;
+import HistoryMultiList;
 #endif
 
 namespace cmd
@@ -24,7 +25,7 @@ namespace cmd
 	using Journal = std::vector<std::tuple<Operation, std::string, std::string>>;
 
 	Journal journal;
-	HistoryList historyList;
+	HistoryUniqueList historyList;
 
     public:
 	enum class Type
@@ -37,7 +38,7 @@ namespace cmd
 	HistoryCache(Type const historyType);
 
 	auto flush() -> void;
-	auto history() -> HistoryList const &;
+	auto history() -> HistoryUniqueList const &;
     };
 }
 
@@ -62,7 +63,7 @@ namespace cmd
     {
     }
 
-    auto HistoryCache::history() -> HistoryList const &
+    auto HistoryCache::history() -> HistoryUniqueList const &
     {
 	return historyList;
     }
