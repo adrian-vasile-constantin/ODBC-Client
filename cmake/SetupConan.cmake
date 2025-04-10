@@ -4,7 +4,7 @@ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/cmake-conan/conan_provider.cmak
     find_package(Git)
 
     if (Git_FOUND)
-	execute_process(COMMAND "${GIT_EXECUTABLE}" "submodule" "update" "--init" "libs/camke-conan"
+	execute_process(COMMAND "${GIT_EXECUTABLE}" "submodule" "update" "--init" "libs/cmake-conan"
 	    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 	    COMMAND ECHO STDOUT COMMAND ERROR_IS_FATAL ANY)
     else()
