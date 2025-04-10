@@ -37,14 +37,28 @@ namespace cmd
     export class HistoryUniqueList
     {
     public:
+	enum class Operation
+	{
+	    LineLiteral,
+	    IndexedDelete,
+	    DeleteLineString,
+	    AppendLineString
+	};
+
 	struct Line:
 	    public list_base_hook<link_mode<normal_link>>,
-	    public set_base_hook<link_mode<normal_link>>,
-	    public tuple<unsigned short, string const, string const>		// ref count, timestamp, data line
+	    public tuple<Operation, string const, string const>		// op, timestamp, data line
 	{
-	    Line(unsigned short count, string_view stamp, string_view line);
-	    Line(unsigned short count, string &&stamp, string &&line);
+	    Line(Operation op, string_view stamp, string_view line);
+	    Line(Operation op, string &&stamp, string &&line);
 	    Line(Line &&line);
+	};
+
+	struct IndexLine:
+	    public set_base_hook<link_mode<normal_link>>,
+	    public Line
+	{
+	    using Line::Line;
 	};
 
 	using Container = list<Line>;
@@ -72,12 +86,18 @@ namespace cmd
 	auto duplicates() const -> bool;
 	auto duplicates(bool dup) -> bool;
 
+	// User input interface
 	auto remove(size_type index) -> void;
-
-	auto append(string_view stamp, string_view lineString) -> void;
 	auto append(string_view lineString) -> void;
 	auto append(string &&lineString) -> void;
+	auto reuse(const_iterator it) -> void;
+
+	// File input interface
+	auto append(string_view stamp, string_view lineString) -> void;
 	auto append(string &&stamp, string &&lineString) -> void;
+
+	// Replay (file output) interface
+	auto replay(HistoryUniqueList &list) -> void;
 
 	auto swap(HistoryUniqueList &other) -> void;
 	auto swap(HistoryUniqueList &&other) -> void;
@@ -102,13 +122,13 @@ namespace cmd
     };
 }
 
-inline cmd::HistoryUniqueList::Line::Line(unsigned short count, string_view stamp, string_view line)
-    : tuple { count, stamp, line }
+inline cmd::HistoryUniqueList::Line::Line(Operation op, string_view stamp, string_view line)
+    : tuple { op, stamp, line }
 {
 }
 
-inline cmd::HistoryUniqueList::Line::Line(unsigned short count, string &&stamp, string &&line)
-    : tuple { count, move(stamp), move(line) }
+inline cmd::HistoryUniqueList::Line::Line(Operation op, string &&stamp, string &&line)
+    : tuple { op, move(stamp), move(line) }
 {
 }
 
@@ -296,7 +316,7 @@ inline auto cmd::HistoryUniqueList::remove(std::string_view lineString) -> size_
 
 inline auto cmd::HistoryUniqueList::emplaceBack(string_view stamp, string_view lineString) -> void
 {
-    lines.push_back(* new Line { 1, stamp, lineString });
+    lines.push_back(* new Line { Operation::AppendLineString, stamp, lineString });
 
     if (lines.size() > listCapacity)
     {

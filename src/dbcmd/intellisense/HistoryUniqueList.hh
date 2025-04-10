@@ -26,13 +26,21 @@ namespace cmd
     export class HistoryUniqueList
     {
     public:
+	enum class Operation
+	{
+	    LineLiteral,
+	    IndexedDelete,
+	    DeleteLineString,
+	    AppendLineString
+	};
+
 	struct Line:
 	    public list_base_hook<link_mode<normal_link>>,
 	    public set_base_hook<link_mode<normal_link>>,
-	    public tuple<unsigned short, string const, string const>		// ref count, timestamp, data line
+	    public tuple<Operation, string const, string const>		// ref count, timestamp, data line
 	{
-	    Line(unsigned short count, string_view stamp, string_view line);
-	    Line(unsigned short count, string &&stamp, string &&line);
+	    Line(Operation op, string_view stamp, string_view line);
+	    Line(Operation op, string &&stamp, string &&line);
 	    Line(Line &&line);
 	};
 
