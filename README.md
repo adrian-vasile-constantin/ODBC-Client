@@ -8,7 +8,7 @@ The intent is to develop 3 components for working with ODBC:
   - a command line interpretter: `dbcmd`
   - a graphical client: `odbc-client`
 
-The client library `odbc++` should simply translate the standard SQL/CLI (or [ODBC](https://learn.microsoft.com/en-us/sql/odbc/reference/syntax/odbc-api-reference?view=sql-server-ver16) application programming interrface into C++ classes.
+The client library `odbc++` should simply translate the standard SQL/CLI (or [ODBC](https://learn.microsoft.com/en-us/sql/odbc/reference/syntax/odbc-api-reference?view=sql-server-ver16)) application programming interrface into C++ classes.
 
 The command line interpretter `dbcmd` should be usable as a mini-shell that directly allows running SQL statements and provides dot-commands (like .time) for connecting to a data source and for utility commands.
 
