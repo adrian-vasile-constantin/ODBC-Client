@@ -1,2 +1,15 @@
-# ODBC-Client
+# ODBC Client
 ODBC client and tools
+
+The project is still in developement and not really usable as of now.
+
+The intent is to develop 3 components for working with ODBC:
+  - a C++ client library: `odbc++`
+  - a command line interpretter: `dbcmd`
+  - a grafical client: `odbc-client`
+
+The client library `odbc++` should simply translate the SQL/CLI (or ODBC) application programming interrface into C++ classes.
+
+The command line interpretter `dbcmd` should be usable as a mini-shell that directly allows running SQL statements and provides doc-commands (like .time) for connecting to a data source and utility commands.
+
+The grafical client `odbc-client` should allow end-users access to everything ODBC has to offer, like connecting to any data source or with any connection string, saving a new data source or file DSN, running SQL queries on a connection, and browsing existing SQL functions, tables, views...
