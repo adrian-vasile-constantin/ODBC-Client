@@ -1,7 +1,7 @@
 # ODBC Client
 ODBC client and tools
 
-The project is still in developement and not really usable as of now. See the other repository [ODBC-GUI-Client](https://github.com/adrian-vasile-constantin/ODBC-GUI-Client) for a (somewhat) working prototype.
+The project is still in developement and not really usable as of now. See the other repository [ODBC-GUI-Client](https://github.com/adrian-vasile-constantin/ODBC-GUI-Client) for a working prototype.
 
 The intent is to develop 3 components for working with ODBC:
   - a C++ client library: `odbc++`
