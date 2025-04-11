@@ -1,4 +1,4 @@
-include(GNUInstallDirs)
+﻿include(GNUInstallDirs)
 include(GenerateExportHeader)
 include(VersionInfo)
 
@@ -64,10 +64,12 @@ if(WIN32)
     target_compile_definitions(odbc++ PUBLIC WINDOWS)
 endif()
 
+string(ASCII 169 COPYRIGHT_SYMBOL)  # literal '©'
+
 VersionInfo_Generate(TARGET odbc++
     COMMENTS "C++ Library for ODBC"
     FILE_DESCRIPTION "C++ Library for ODBC"
-    LEGAL_COPYRIGHT "Copyright � 2025 Timothy Madden"
+    LEGAL_COPYRIGHT "Copyright ${COPYRIGHT_SYMBOL} 2025 Adrian Vasile Constantin"
     ICON "icon/db_plates.ico"
 )
 

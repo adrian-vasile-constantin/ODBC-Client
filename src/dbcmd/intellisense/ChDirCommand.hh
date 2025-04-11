@@ -1,4 +1,4 @@
-#if !defined(DBCMD_CH_DIR_HH)
+﻿#if !defined(DBCMD_CH_DIR_HH)
 #define DBCMD_CH_DIR_HH
 
 #if defined MSVC_INTELLISENSE

@@ -1,4 +1,4 @@
-#if !defined(DBCMD_CONTEXT_HH)
+﻿#if !defined(DBCMD_CONTEXT_HH)
 #define DBCMD_CONTEXT_HH
 
 #if defined __INTELLISENSE__
@@ -9,7 +9,7 @@ class Context
 {
 public:
     static bool isStdInInteractive();
-    
+
 #if defined(_WINDOWS)
     using NativeDescriptor = HANDLE;
 #else

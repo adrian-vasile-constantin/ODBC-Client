@@ -1,4 +1,4 @@
-module;
+﻿module;
 
 #include <boost/iostreams/stream_buffer.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>

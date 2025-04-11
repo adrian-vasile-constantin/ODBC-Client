@@ -1,4 +1,4 @@
-module;
+﻿module;
 
 #include <boost/intrusive/any_hook.hpp>
 #include <boost/intrusive/slist.hpp>

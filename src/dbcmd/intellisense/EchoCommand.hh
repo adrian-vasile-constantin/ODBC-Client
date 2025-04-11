@@ -1,4 +1,4 @@
-#if !defined(DBCMD_ECHO_COMMAND_HH)
+﻿#if !defined(DBCMD_ECHO_COMMAND_HH)
 #define DBCMD_ECHO_COMMAND_HH
 
 #if defined MSVC_INTELLISENSE

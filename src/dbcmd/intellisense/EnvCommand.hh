@@ -1,4 +1,4 @@
-#if !defined(DBCMD_ENV_COMMAND_HH)
+﻿#if !defined(DBCMD_ENV_COMMAND_HH)
 #define DBCMD_ENV_COMMAND_HH
 
 #if defined MSVC_INTELLISENSE

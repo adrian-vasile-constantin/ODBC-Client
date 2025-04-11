@@ -1,4 +1,4 @@
-include(GNUInstallDirs)
+﻿include(GNUInstallDirs)
 include(VersionInfo)
 
 set(SQLODBC_SOURCES
@@ -37,6 +37,8 @@ set_target_properties(dbcmd
 	CXX_SCAN_FOR_MODULES ON
 	INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
+string(ASCII 169 COPYRIGHT_SYMBOL)  # literal '©'
+
 VersionInfo_Generate(TARGET dbcmd
 #    FILE_FLAG_PATCHED FALSE
 #    FILE_FLAG_PRERELEASE TRUE
@@ -44,7 +46,7 @@ VersionInfo_Generate(TARGET dbcmd
 #    SPECIAL_BUILD ""
     COMMENTS "ODBC Command Prompt and command interpretter"
     FILE_DESCRIPTION "ODBC Command Prompt"
-    LEGAL_COPYRIGHT "Copyright � 2025 Timothy Madden"
+    LEGAL_COPYRIGHT "Copyright ${COPYRIGHT_SYMBOL} 2025 Adrian Vasile Constantin"
     ICON "icon/db_plates.ico"
 )
 

@@ -1,4 +1,4 @@
-#if !defined(DBCMD_COMMAND_DRIVERS_HH)
+﻿#if !defined(DBCMD_COMMAND_DRIVERS_HH)
 #define DBCMD_COMMAND_DRIVERS_HH
 
 #if defined MSVC_INTELLISENSE

@@ -1,4 +1,4 @@
-module;
+﻿module;
 
 #if defined(_WINDOWS)
 # if defined(_M_AMD64) && !defined(_AMD64_)

@@ -1,4 +1,4 @@
-#if !defined(SQL_ODBCXX_CONNECTION)
+﻿#if !defined(SQL_ODBCXX_CONNECTION)
 #define SQL_ODBCXX_CONNECTION
 
 #if defined MSVC_INTELLISENSE

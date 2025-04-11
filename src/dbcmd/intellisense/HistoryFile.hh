@@ -1,4 +1,4 @@
-#if !defined ODBC_CMD_LIB_HISTORY_FILE_HH
+﻿#if !defined ODBC_CMD_LIB_HISTORY_FILE_HH
 #define ODBC_CMD_LIB_HISTORY_FILE_HH
 
 #if defined MSVC_INTELLISENSE
@@ -14,7 +14,7 @@ namespace cmd
 	using pos_type = std::iostream::pos_type;
 	using Container = std::list<std::string>;
 	using Index = std::vector<std::pair<pos_type, Container::const_iterator>>;
-	
+
 	template <typename CharT>
 	    using basic_file = boost::iostreams::basic_file<CharT>;
 

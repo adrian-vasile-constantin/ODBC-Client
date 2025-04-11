@@ -1,4 +1,4 @@
-#if !defined(SQL_ODBCXX_ENVIRONMENT)
+﻿#if !defined(SQL_ODBCXX_ENVIRONMENT)
 #define SQL_ODBCXX_ENVIRONMENT
 
 #if defined(_WINDOWS) && defined(_M_AMD64) && !defined(_AMD64_)

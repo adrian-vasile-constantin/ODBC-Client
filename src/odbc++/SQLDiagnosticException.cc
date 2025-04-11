@@ -1,4 +1,4 @@
-module;
+﻿module;
 
 #include "intellisense/odbcxx_project_headers.hh"
 

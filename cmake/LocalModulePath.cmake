@@ -1,4 +1,4 @@
-include_guard(DIRECTORY)
+﻿include_guard(DIRECTORY)
 
 set(LOCAL_MODULE_DIR_PATH "${CMAKE_CURRENT_LIST_DIR}")
 

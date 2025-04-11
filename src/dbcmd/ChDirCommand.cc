@@ -1,4 +1,4 @@
-module;
+﻿module;
 
 #include "intellisense/project_headers.hh"
 
