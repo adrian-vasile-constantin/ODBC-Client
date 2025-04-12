@@ -33,7 +33,7 @@ endif()
 set_target_properties(dbcmd
     PROPERTIES
 	MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue"
-	COMPILE_PDB_NAME "sqlodbc.compile"
+	COMPILE_PDB_NAME "dbcmd.compile"
 	CXX_SCAN_FOR_MODULES ON
 	INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 

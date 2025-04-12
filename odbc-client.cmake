@@ -1,11 +1,14 @@
 ﻿find_package(wxWidgets)
 
 set(ODBC_CLIENT_SOURCES
+	"src/odbc-client/local/wx/Base.cc"
+	"src/odbc-client/local/wx/Core.cc"
 	"src/odbc-client/OdbcFrame.cc"
 	"src/odbc-client/OdbcApp.cc")
 
 add_executable(odbc-client)
 target_sources(odbc-client PRIVATE FILE_SET CXX_MODULES FILES ${ODBC_CLIENT_SOURCES})
+target_include_directories(odbc-client PRIVATE "src/odbc-client")
 target_link_libraries(odbc-client PRIVATE odbc++ wxWidgets::wxWidgets)
 target_compile_features(odbc-client PRIVATE cxx_std_23)
 set_target_properties(odbc-client PROPERTIES WIN32_EXECUTABLE ON)

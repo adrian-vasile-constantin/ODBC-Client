@@ -5,14 +5,16 @@
 
 // For MS IntelliSense only
 
-# define MSVC_INTELLISENSE 1
+# if !defined MSVC_INTELLISENSE
+#  define MSVC_INTELLISENSE 1
+# endif
 
 #if defined WINDOWS
-
 # if defined(_M_AMD64) && !defined(_AMD64_)
 #   define _AMD64_
 # endif
-# if defined(_M_IX86) && !defined(_X68_)
+
+# if defined(_M_IX86) && !defined(_X86_)
 #  define _X86_
 # endif
 
