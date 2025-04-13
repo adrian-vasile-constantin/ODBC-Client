@@ -3,6 +3,9 @@
 set(ODBC_CLIENT_SOURCES
 	"src/odbc-client/local/wx/Base.cc"
 	"src/odbc-client/local/wx/Core.cc"
+	"src/odbc-client/local/wx/Core.defs.cc"
+	"src/odbc-client/local/wx/Core.event.cc"
+	"src/odbc-client/local/wx/Core.toplevel.cc"
 	"src/odbc-client/OdbcFrame.cc"
 	"src/odbc-client/OdbcApp.cc")
 

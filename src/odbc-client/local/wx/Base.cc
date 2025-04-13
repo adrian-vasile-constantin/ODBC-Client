@@ -1,5 +1,6 @@
 module;
 
+#include <wx/list.h>
 #include <wx/string.h>
 #include <wx/secretstore.h>
 #include <wx/object.h>
@@ -12,6 +13,8 @@ namespace local
 {
     namespace wx
     {
+	export using List = wxList;
+	export using Node = wxNode;
 	export using SecretStore = wxSecretStore;
 	export using SecretValue = wxSecretValue;
 	export using SecretString = wxSecretString;
