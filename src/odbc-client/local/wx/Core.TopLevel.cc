@@ -1,8 +1,8 @@
-module;
+﻿module;
 
 #include <wx/toplevel.h>
 
-export module local.wx.Core:toplevel;
+export module local.wx.Core:TopLevel;
 
 namespace local::wx
 {

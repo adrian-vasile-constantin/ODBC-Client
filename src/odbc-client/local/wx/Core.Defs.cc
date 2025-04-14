@@ -1,8 +1,8 @@
-module;
+﻿module;
 
 #include <wx/defs.h>
 
-export module local.wx.Core:defs;
+export module local.wx.Core:Defs;
 
 namespace local::wx
 {
@@ -133,7 +133,7 @@ namespace local::wx
 
     export using StandardID = wxStandardID;
 
-    export auto const
+    export constexpr auto const
 	ID_AUTO_LOWEST		     =  wxID_AUTO_LOWEST,
         ID_AUTO_HIGHEST	    	     =  wxID_AUTO_HIGHEST,
         ID_NONE		    	     =  wxID_NONE,

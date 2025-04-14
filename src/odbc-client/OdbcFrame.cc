@@ -5,10 +5,11 @@
 export module OdbcFrame;
 
 #if !defined MSVC_INTELLISENSE
+import local.wx.Base;
 import local.wx.Core;
+#endif
 
 namespace wx = local::wx;
-#endif
 
 export class OdbcFrame: public wx::Frame
 {
@@ -29,24 +30,35 @@ import std;
 
 using std::unique_ptr;
 
+using wx::OK;
+using wx::ID_ABOUT;
+using wx::ID_EXIT;
+using wx::ID_ANY;
+using wx::EVT_MENU;
+using wx::ICON_INFORMATION;
+using wx::CommandEvent;
+using wx::Menu;
+using wx::MenuBar;
+using wx::MessageBox;
+
 enum
 {
     ID_Connect = 1
 };
 
 OdbcFrame::OdbcFrame()
-    : wxFrame(nullptr, wx::ID_ANY, "ODBC Client")
+    : wxFrame(nullptr, ID_ANY, "ODBC Client")
 {
-    auto menuFile = unique_ptr<wx::Menu> { new wx::Menu() };
+    auto menuFile = unique_ptr<Menu> { new Menu() };
 
     menuFile->Append(ID_Connect, "Connect...", "Connect to selected ODBC driver or Data Source Name");
     menuFile->AppendSeparator();
-    menuFile->Append(wx::ID_EXIT);
+    menuFile->Append(ID_EXIT);
 
-    auto menuHelp = unique_ptr<wx::Menu> { new wx::Menu() };
-    menuHelp->Append(wx::ID_ABOUT);
+    auto menuHelp = unique_ptr<Menu> { new Menu() };
+    menuHelp->Append(ID_ABOUT);
 
-    auto menuBar = unique_ptr<wx::MenuBar> { new wx::MenuBar() };
+    auto menuBar = unique_ptr<MenuBar> { new MenuBar() };
     menuBar->Append(menuFile.release(), "&ODBC");
     menuBar->Append(menuHelp.release(), "&Help");
 
@@ -55,22 +67,22 @@ OdbcFrame::OdbcFrame()
     CreateStatusBar();
     SetStatusText("Connect to ODBC data source");
 
-    Bind(wx::EVT_MENU, &OdbcFrame::OnConnect, this, ID_Connect);
-    Bind(wx::EVT_MENU, &OdbcFrame::OnExit, this, wx::ID_EXIT);
-    Bind(wx::EVT_MENU, &OdbcFrame::OnAbout, this, wx::ID_ABOUT);
+    Bind(EVT_MENU, &OdbcFrame::OnConnect, this, ID_Connect);
+    Bind(EVT_MENU, &OdbcFrame::OnExit, this, ID_EXIT);
+    Bind(EVT_MENU, &OdbcFrame::OnAbout, this, ID_ABOUT);
 }
 
-auto OdbcFrame::OnExit(wx::CommandEvent &event) -> void
+auto OdbcFrame::OnExit(CommandEvent &event) -> void
 {
     Close(true);
 }
 
-auto OdbcFrame::OnConnect(wx::CommandEvent &event) -> void
+auto OdbcFrame::OnConnect(CommandEvent &event) -> void
 {
-    wx::MessageBox("ODBC Connect", "ODBC Client", wx::OK | wx::ICON_INFORMATION, this);
+    MessageBox("ODBC Connect", "ODBC Client", OK | ICON_INFORMATION, this);
 }
 
-auto OdbcFrame::OnAbout(wx::CommandEvent &event) -> void
+auto OdbcFrame::OnAbout(CommandEvent &event) -> void
 {
-    wx::MessageBox("ODBC Client", "ODBC Client", wx::OK | wx::ICON_INFORMATION, this);
+    MessageBox("ODBC Client", "ODBC Client", OK | ICON_INFORMATION, this);
 }

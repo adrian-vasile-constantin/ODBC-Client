@@ -1,8 +1,8 @@
-module;
+﻿module;
 
 #include <wx/event.h>
 
-export module local.wx.Core:event;
+export module local.wx.Core:Event;
 
 namespace local::wx
 {
