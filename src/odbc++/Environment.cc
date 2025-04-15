@@ -27,6 +27,8 @@ namespace odbc
     using sql::SQL_OV_ODBC3;
     using sql::SQL_OV_ODBC3_80;
     using sql::SQLSetEnvAttr;
+    using sql::SQL_FETCH_FIRST_USER;
+    using sql::SQL_FETCH_FIRST_SYSTEM;
 #endif
 
     export class ODBCXX_EXPORT Environment: protected Handle
@@ -34,6 +36,8 @@ namespace odbc
     protected:
 	friend class Connection;
 	void FetchDriver(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &driverInfo);
+	void FetchDSN(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &dsn);
+	auto DataSourceNames(SQLUSMALLINT direction) -> std::list<std::pair<std::string, std::string>>;
 
     public:
 	enum class Version: unsigned long
@@ -45,7 +49,9 @@ namespace odbc
 
 	Environment(Version ver);
 	Environment(unsigned long ver = SQL_OV_ODBC3_80);
-	std::map<std::string, std::map<std::string, std::string>> drivers();
+	auto drivers() -> std::map<std::string, std::map<std::string, std::string>>;
+	auto userDSNs() -> std::list<std::pair<std::string, std::string>>;
+	auto systemDSNs() -> std::list<std::pair<std::string, std::string>>;
 
 	SQLHENV nativeHandle() const;
 
@@ -53,7 +59,7 @@ namespace odbc
 	using Handle::diagnosticRecords;
 
 	template <typename StringT, typename CharT>
-	    static std::map<std::string, std::string> splitAttributes(StringT const &inputLine, CharT separator = ';');
+	    static std::map<std::string, std::string> splitAttributes(StringT const &inputLine, CharT separator = CharT { ';' });
     };
 }
 
@@ -73,8 +79,18 @@ inline SQLHENV odbc::Environment::nativeHandle() const
     return sqlHandle;
 }
 
+inline auto odbc::Environment::userDSNs() -> std::list<std::pair<std::string, std::string>>
+{
+    return DataSourceNames(SQL_FETCH_FIRST_USER);
+}
+
+inline auto odbc::Environment::systemDSNs() -> std::list<std::pair<std::string, std::string>>
+{
+    return DataSourceNames(SQL_FETCH_FIRST_SYSTEM);
+}
+
 template<typename StringT, typename CharT>
-std::map<std::string, std::string> odbc::Environment::splitAttributes(StringT const &attributes, CharT separator)
+    std::map<std::string, std::string> odbc::Environment::splitAttributes(StringT const &attributes, CharT separator)
 {
     using std::string;
     auto it = attributes.begin();
@@ -109,6 +125,7 @@ using std::string;
 using std::basic_string;
 using std::vector;
 using std::map;
+using std::list;
 using std::pair;
 using std::runtime_error;
 using std::find;
@@ -119,16 +136,20 @@ namespace execution = std::execution;
 #if !defined MSVC_INTELLISENSE
 using sql::SQL_SUCCESS;
 using sql::SQL_SUCCESS_WITH_INFO;
+using sql::SQL_INVALID_HANDLE;
 using sql::SQL_NO_DATA;
 using sql::SQL_ERROR;
 using sql::SQL_FETCH_FIRST;
 using sql::SQL_FETCH_NEXT;
+using sql::SQL_FETCH_FIRST_USER;
+using sql::SQL_FETCH_FIRST_SYSTEM;
 using sql::SQLDrivers;
+using sql::SQLDataSources;
 #endif
 
 void odbc::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &driverInfo)
 {
-    SQLSMALLINT descLen = 0, attrLen = 0;
+    auto descLen = SQLSMALLINT { 0 }, attrLen = SQLSMALLINT { 0 };
 
     switch
 	(
@@ -146,6 +167,9 @@ void odbc::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqls
 	driverInfo.second.pop_back();
 	return;
 
+    case SQL_INVALID_HANDLE:
+	throw runtime_error("Invalid handle");
+
     case SQL_NO_DATA:
 	throw runtime_error("No driver info.");
 
@@ -155,7 +179,39 @@ void odbc::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqls
     }
 }
 
-static pair<string, map<string, string>> MakeDriverInfo(vector<SQLCHAR> &description, vector<SQLCHAR> &attributes)
+void odbc::Environment::FetchDSN(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &dsn)
+{
+    auto nameLen = SQLSMALLINT { 0 }, descLen = SQLSMALLINT { 0 };
+
+    switch
+	(
+	    SQLDataSources
+		(
+		    sqlHandle, direction,
+		    dsn.first.data(), static_cast<SQLSMALLINT>(dsn.first.size()), &nameLen,
+		    dsn.second.data(), static_cast<SQLSMALLINT>(dsn.second.size()), &descLen
+		)
+	)
+    {
+    case SQL_SUCCESS:
+    case SQL_SUCCESS_WITH_INFO:
+	dsn.first.pop_back();
+	dsn.second.pop_back();
+	return;
+
+    case SQL_NO_DATA:
+	throw runtime_error("No driver info.");
+
+    case SQL_INVALID_HANDLE:
+	throw runtime_error("Invalid handle.");
+
+    case SQL_ERROR:
+    default:
+	throw runtime_error("SQL Error.");
+    }
+}
+
+static auto MakeDriverInfo(vector<SQLCHAR> &description, vector<SQLCHAR> &attributes) -> pair<string, map<string, string>>
 {
     string strDescription, attributeName, attributeValue;
 
@@ -185,7 +241,7 @@ static pair<string, map<string, string>> MakeDriverInfo(vector<SQLCHAR> &descrip
 
 auto odbc::Environment::drivers() -> map<string, map<string, string>>
 {
-    SQLSMALLINT descLen = 0, attrLen = 0;
+    auto descLen = SQLSMALLINT { 0 }, attrLen = SQLSMALLINT { 0 };
     vector<pair<sqlstring, sqlstring>> driverList;
     SQLUSMALLINT direction = SQL_FETCH_FIRST;
 
@@ -201,6 +257,9 @@ auto odbc::Environment::drivers() -> map<string, map<string, string>>
 	case SQL_NO_DATA:
 	    descLen = -1;
 	    break;
+
+	case SQL_INVALID_HANDLE:
+	    throw runtime_error("Invalid handle");
 
 	case SQL_ERROR:
 	    throw runtime_error("SQL Error");
@@ -219,4 +278,54 @@ auto odbc::Environment::drivers() -> map<string, map<string, string>>
     }
 
     return drivers;
+}
+
+static inline auto MakeDsnInfo(vector<SQLCHAR> &name, vector<SQLCHAR> &desc) -> pair<string, string>
+{
+    return { string { name.begin(), name.end() }, string { desc.begin(), desc.end() } };
+}
+
+auto odbc::Environment::DataSourceNames(SQLUSMALLINT direction) -> list<pair<string, string>>
+{
+    auto nameLen = SQLSMALLINT { 0 }, descLen = SQLSMALLINT { 0 };
+    auto dsnList = list<pair<sqlstring, sqlstring>> { };
+    auto nextDirection = SQLUSMALLINT { direction };
+
+    do
+    {
+	switch (SQLDataSources(sqlHandle, nextDirection, nullptr, 0, &nameLen, nullptr, 0, &descLen))
+	{
+	case SQL_SUCCESS:
+	case SQL_SUCCESS_WITH_INFO:
+	    dsnList.emplace_back(sqlstring(nameLen + 1u), sqlstring(descLen + 1u));
+	    break;
+
+	case SQL_NO_DATA:
+	    nameLen = -1;
+	    break;
+
+	case SQL_INVALID_HANDLE:
+	    throw runtime_error("Invalid handle.");
+
+	case SQL_ERROR:
+	default:
+	    throw runtime_error("SQL Error.");
+	}
+
+	nextDirection = SQL_FETCH_NEXT;
+    }
+    while (nameLen >= 0);
+
+    auto dsns = list<pair<string, string>> { };
+
+    nextDirection = SQLUSMALLINT { direction };
+
+    for (auto &dsnInfo: dsnList)
+    {
+	FetchDSN(nextDirection, dsnInfo);
+	nextDirection = SQL_FETCH_NEXT;
+	dsns.emplace_back(MakeDsnInfo(dsnInfo.first, dsnInfo.second));
+    }
+
+    return dsns;
 }

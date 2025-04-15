@@ -13,7 +13,10 @@ Should simply translate the standard SQL/CLI (or [ODBC](https://learn.microsoft.
 
 ## command line interpretter `dbcmd`
 Should be usable as a mini-shell that directly allows running SQL statements and provides dot-commands (like `.echo`) for connecting to a data source and for utility commands.
+
 !["dbcmd"](screenshots/dbcmd.png "Current commands in dbcmd interpretter")
 
 ## grafical client `odbc-client`
 Should allow end-users access to everything ODBC has to offer, like connecting to any data source or with any connection string, saving a new data source or a file DSN, running SQL queries on a connection, and browsing existing SQL functions, tables, views...
+
+!["Connection - ODBC Client"](screenshots/odbc-client.png "Connection window for ODBC Client")

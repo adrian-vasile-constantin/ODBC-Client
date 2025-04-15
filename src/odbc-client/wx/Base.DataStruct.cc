@@ -5,9 +5,9 @@
 #include <wx/string.h>
 #include <wx/versioninfo.h>
 
-export module local.wx.Base:DataStruct;
+export module wx.Base:DataStruct;
 
-namespace local::wx
+namespace wx
 {
     export using Position	= wxPosition;
     export using DateTime	= wxDateTime;

@@ -16,6 +16,8 @@ namespace odbc
     protected:
 	friend class Connection;
 	void FetchDriver(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &driverInfo);
+	void FetchDSN(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &dsn);
+	auto DataSourceNames(SQLUSMALLINT direction) -> std::list<std::pair<std::string, std::string>>;
 
     public:
 	enum class Version: unsigned long
@@ -27,7 +29,9 @@ namespace odbc
 
 	Environment(Version ver);
 	Environment(unsigned long ver = SQL_OV_ODBC3_80);
-	std::map<std::string, std::map<std::string, std::string>> drivers();
+	auto drivers() -> std::map<std::string, std::map<std::string, std::string>>;
+	auto userDSNs() -> std::list<std::pair<std::string, std::string>>;
+	auto systemDSNs() -> std::list<std::pair<std::string, std::string>>;
 
 	SQLHENV nativeHandle() const;
 

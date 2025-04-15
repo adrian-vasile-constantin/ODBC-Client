@@ -1,5 +1,6 @@
 ﻿module;
 
+#include <wx/colour.h>
 #include <wx/image.h>
 #include <wx/gdiobj.h>
 #include <wx/bitmap.h>
@@ -12,10 +13,11 @@
 #include <wx/pen.h>
 #include <wx/region.h>
 
-export module local.wx.Core:GDI;
+export module wx.Core:GDI;
 
-namespace local::wx
+namespace wx
 {
+    export using Color		    = wxColor;
     export using Image		    = wxImage;
     export using ImageHandler	    = wxImageHandler;
 

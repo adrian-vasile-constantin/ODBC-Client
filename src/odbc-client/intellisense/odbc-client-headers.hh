@@ -55,9 +55,11 @@
 #include <wx/region.h>
 
 #include <wx/control.h>
+#include <wx/stattext.h>
 #include <wx/statbox.h>
 #include <wx/statbmp.h>
 #include <wx/button.h>
+#include <wx/bmpbuttn.h>
 #include <wx/tglbtn.h>
 #include <wx/radiobox.h>
 #include <wx/radiobut.h>
@@ -92,6 +94,7 @@
 #include <wx/toplevel.h>
 
 #include <wx/display.h>
+#include <wx/persist.h>
 
 #include <wx/validate.h>
 #include <wx/window.h>
@@ -102,11 +105,13 @@
 #include <wx/msgdlg.h>
 #include <wx/menu.h>
 
+#include <wx/artprov.h>
+
 // #include "intellisense/odbcxx_project_headers.hh"
 
 #include "OdbcFrame.hh"
 
-namespace local::wx
+namespace wx
 {
     export using Position	= wxPosition;
     export using DateTime	= wxDateTime;
@@ -457,7 +462,7 @@ namespace local::wx
         ID_FILECTRL		     =  wxID_FILECTRL,
         ID_HIGHEST		     =  wxID_HIGHEST;
 
-    export using EventType = wxEventType;
+    export using EventType	 = wxEventType;
 
     export using CommandEvent	 = wxCommandEvent;
     export using CloseEvent	 = wxCloseEvent;
@@ -726,9 +731,11 @@ namespace local::wx
 
 
     export using Control	    = wxControl;
+    export using StaticText	    = wxStaticText;
     export using StaticBox	    = wxStaticBox;
     export using StaticBitmap	    = wxStaticBitmap;
     export using Button		    = wxButton;
+    export using BitmapButton	    = wxBitmapButton;
     export using ToggleButton	    = wxToggleButton;
     export using RadioButton	    = wxRadioButton;
     export using RadioBox	    = wxRadioBox;
@@ -737,11 +744,13 @@ namespace local::wx
     export using ComboBox	    = wxComboBox;
     export using ComboCtrl	    = wxComboCtrl;
     export using ListBox	    = wxListBox;
+    export using ListColumnFormat   = wxListColumnFormat;
     export using VListBox	    = wxVListBox;
     export using CheckListBox	    = wxCheckListBox;
     export using RearrangeList	    = wxRearrangeList;
     export using RearrangeCtrl	    = wxRearrangeCtrl;
     export using ListCtrl	    = wxListCtrl;
+    export using ListItem	    = wxListItem;
     export using ListView	    = wxListView;
     export using ImageList	    = wxImageList;
     export using TreeCtrl	    = wxTreeCtrl;
@@ -765,6 +774,12 @@ namespace local::wx
     export using ListEvent	    = wxListEvent;
     export using TreeEvent	    = wxTreeEvent;
     export using FileCtrlEvent	    = wxFileCtrlEvent;
+
+    export constexpr auto const
+	ST_NO_AUTORESIZE		    = wxST_NO_AUTORESIZE,
+	ST_ELLIPSIZE_STAR		    = wxST_ELLIPSIZE_START,
+	ST_ELLIPSIZE_MIDDL		    = wxST_ELLIPSIZE_MIDDLE,
+	ST_ELLIPSIZE_EN			     = wxST_ELLIPSIZE_END;
 
     export constexpr auto const
 	DP_SPIN				    = wxDP_SPIN,
@@ -856,8 +871,19 @@ namespace local::wx
 	LC_HRULES			    = wxLC_HRULES,
 	LC_VRULES			    = wxLC_VRULES;
 
+    export constexpr auto const
+	LIST_FORMAT_LEFT		    = wxLIST_FORMAT_LEFT,
+	LIST_FORMAT_RIGHT		    = wxLIST_FORMAT_RIGHT,
+	LIST_FORMAT_CENTRE		    = wxLIST_FORMAT_CENTRE,
+	LIST_FORMAT_CENTER		    = wxLIST_FORMAT_CENTER;
+
+    export constexpr auto const
+    	LIST_AUTOSIZE			    = wxLIST_AUTOSIZE,
+	LIST_AUTOSIZE_USEHEADER		    = wxLIST_AUTOSIZE_USEHEADER;
+
     export using SizerFlags		= wxSizerFlags;
     export using Sizer			= wxSizer;
+    export using SizerItem		= wxSizerItem;
     export using BoxSizer		= wxBoxSizer;
     export using StaticBoxSizer		= wxStaticBoxSizer;
     export using StdDialogButtonSizer	= wxStdDialogButtonSizer;
@@ -865,6 +891,13 @@ namespace local::wx
     export using GridSizer		= wxGridSizer;
     export using FlegGridSizer		= wxFlexGridSizer;
     export using GridBagSizer		= wxGridBagSizer;
+    export using GridBagSizer		= wxGridBagSizer;
+    export using GBSizerItem		= wxGBSizerItem;
+    export using GBPosition		= wxGBPosition;
+    export using GBSpan			= wxGBSpan;
+
+    export auto const
+	&DefaultSpan = wxDefaultSpan;
 
     export constexpr auto const
 	TOP				= wxTOP,
@@ -876,6 +909,10 @@ namespace local::wx
     export constexpr auto const
 	EXPAND				= wxEXPAND,
 	SHAPED				= wxSHAPED;
+
+    export constexpr auto const
+	HORIZONTAL			= wxHORIZONTAL,
+	VERTICAL			= wxVERTICAL;
 
     export constexpr auto const
 	FIXED_MINSIZE			= wxFIXED_MINSIZE,
@@ -940,6 +977,7 @@ namespace local::wx
     export using MenuItem	= wxMenuItem;
     export using Menu		= wxMenu;
     export using MenuBar	= wxMenuBar;
+    export using ArtProvider	= wxArtProvider;
 
     export using MessageDialog	= wxMessageDialog;
 
@@ -961,9 +999,29 @@ namespace local::wx
 
     export auto const
 	&DefaultValidator = wxDefaultValidator;
+
+    export auto const
+	&PanelNameStr = wxPanelNameStr;
+
+    export template <typename... Args>
+	inline auto CreatePersistentObject(Args &&... args)
+    {
+	using ::wxCreatePersistentObject;
+	using ::wxPersistentRegisterAndRestore;
+
+	return wxCreatePersistentObject(forward<Args>(args)...);
+    }
+
+    export template <typename... Args>
+	inline auto PersistentRegisterAndRestore(Args &&... args)
+    {
+	using ::wxCreatePersistentObject;
+	using ::wxPersistentRegisterAndRestore;
+
+	return wxPersistentRegisterAndRestore(forward<Args>(args)...);
+    }
 }
 
 #endif	    // #if defined __INTELLISENSE__
-
 
 #endif	    // !defined ODBC_CLIENT_INTELLISENSE_PROJECT_HEADERS_HH_INCLUDED

@@ -2,9 +2,9 @@
 
 #include <wx/event.h>
 
-export module local.wx.Core:Event;
+export module wx.Core:Event;
 
-namespace local::wx
+namespace wx
 {
     export using EventType = wxEventType;
 

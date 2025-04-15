@@ -2,9 +2,9 @@
 
 #include <wx/toplevel.h>
 
-export module local.wx.Core:TopLevel;
+export module wx.Core:TopLevel;
 
-namespace local::wx
+namespace wx
 {
     export using TopLevelWindow	    = wxTopLevelWindow;
 

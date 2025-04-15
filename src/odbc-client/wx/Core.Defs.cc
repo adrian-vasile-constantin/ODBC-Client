@@ -2,9 +2,9 @@
 
 #include <wx/defs.h>
 
-export module local.wx.Core:Defs;
+export module wx.Core:Defs;
 
-namespace local::wx
+namespace wx
 {
     export auto const SIZE_AUTO_WIDTH	 	  = wxSIZE_AUTO_WIDTH;
     export auto const SIZE_AUTO_HEIGHT         	  = wxSIZE_AUTO_HEIGHT;

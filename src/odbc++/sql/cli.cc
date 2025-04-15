@@ -97,6 +97,10 @@ namespace
 	local_SQL_FETCH_RELATIVE  = SQL_FETCH_RELATIVE;
 
     constexpr auto const
+	local_SQL_FETCH_FIRST_USER	= SQL_FETCH_FIRST_USER,
+	local_SQL_FETCH_FIRST_SYSTEM	= SQL_FETCH_FIRST_SYSTEM;
+
+    constexpr auto const
 	local_SQL_COMMIT	  = SQL_COMMIT,
 	local_SQL_ROLLBACK        = SQL_ROLLBACK;
 
@@ -170,6 +174,9 @@ namespace
 #undef SQL_FETCH_PRIOR
 #undef SQL_FETCH_ABSOLUTE
 #undef SQL_FETCH_RELATIVE
+
+#undef SQL_FETCH_FIRST_USER
+#undef SQL_FETCH_FIRST_SYSTEM
 
 #undef SQL_COMMIT
 #undef SQL_ROLLBACK
@@ -261,6 +268,10 @@ namespace sql
 	SQL_FETCH_RELATIVE  = local_SQL_FETCH_RELATIVE;
 
     export constexpr auto const
+	SQL_FETCH_FIRST_USER	= local_SQL_FETCH_FIRST_USER,
+	SQL_FETCH_FIRST_SYSTEM	= local_SQL_FETCH_FIRST_SYSTEM;
+
+    export constexpr auto const
 	SQL_COMMIT	  = local_SQL_COMMIT,
 	SQL_ROLLBACK      = local_SQL_ROLLBACK;
 
@@ -323,14 +334,18 @@ namespace sql
     export using ::SQLBrowseConnectA;
     export using ::SQLBrowseConnectW;
     export using ::SQLDisconnect;
+    export using ::SQLDataSourcesA;
+    export using ::SQLDataSourcesW;
 
 #if defined UNICODE || defined _UNICODE
     export constexpr auto const &SQLGetDiagRec	  = ::SQLGetDiagRecW;
     export constexpr auto const &SQLDrivers	  = ::SQLDriversW;
     export constexpr auto const &SQLBrowseConnect = ::SQLBrowseConnectW;
+    export constexpr auto const &SQLDataSources	  = ::SQLDataSourcesW;
 #else
     export constexpr auto const &SQLGetDiagRec	  = ::SQLGetDiagRecA;
     export constexpr auto const &SQLDrivers	  = ::SQLDriversA;
     export constexpr auto const &SQLBrowseConnect = ::SQLBrowseConnectA;
+    export constexpr auto const &SQLDataSources   = ::SQLDataSourcesA;
 #endif
 }

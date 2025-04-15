@@ -1,9 +1,11 @@
 ﻿module;
 
 #include <wx/control.h>
+#include <wx/stattext.h>
 #include <wx/statbox.h>
 #include <wx/statbmp.h>
 #include <wx/button.h>
+#include <wx/bmpbuttn.h>
 #include <wx/tglbtn.h>
 #include <wx/radiobox.h>
 #include <wx/radiobut.h>
@@ -31,14 +33,16 @@
 
 #include <wx/dataview.h>
 
-export module local.wx.Core:Controls;
+export module wx.Core:Controls;
 
-namespace local::wx
+namespace wx
 {
     export using Control	    = wxControl;
+    export using StaticText	    = wxStaticText;
     export using StaticBox	    = wxStaticBox;
     export using StaticBitmap	    = wxStaticBitmap;
     export using Button		    = wxButton;
+    export using BitmapButton	    = wxBitmapButton;
     export using ToggleButton	    = wxToggleButton;
     export using RadioButton	    = wxRadioButton;
     export using RadioBox	    = wxRadioBox;
@@ -47,11 +51,13 @@ namespace local::wx
     export using ComboBox	    = wxComboBox;
     export using ComboCtrl	    = wxComboCtrl;
     export using ListBox	    = wxListBox;
+    export using ListColumnFormat   = wxListColumnFormat;
     export using VListBox	    = wxVListBox;
     export using CheckListBox	    = wxCheckListBox;
     export using RearrangeList	    = wxRearrangeList;
     export using RearrangeCtrl	    = wxRearrangeCtrl;
     export using ListCtrl	    = wxListCtrl;
+    export using ListItem	    = wxListItem;
     export using ListView	    = wxListView;
     export using ImageList	    = wxImageList;
     export using TreeCtrl	    = wxTreeCtrl;
@@ -75,6 +81,12 @@ namespace local::wx
     export using ListEvent	    = wxListEvent;
     export using TreeEvent	    = wxTreeEvent;
     export using FileCtrlEvent	    = wxFileCtrlEvent;
+
+    export constexpr auto const
+	ST_NO_AUTORESIZE		    = wxST_NO_AUTORESIZE,
+	ST_ELLIPSIZE_STAR		    = wxST_ELLIPSIZE_START,
+	ST_ELLIPSIZE_MIDDL		    = wxST_ELLIPSIZE_MIDDLE,
+	ST_ELLIPSIZE_ENd		    = wxST_ELLIPSIZE_END;
 
     export constexpr auto const
 	DP_SPIN				    = wxDP_SPIN,
@@ -165,4 +177,14 @@ namespace local::wx
 	LC_SORT_DESCENDING		    = wxLC_SORT_DESCENDING,
 	LC_HRULES			    = wxLC_HRULES,
 	LC_VRULES			    = wxLC_VRULES;
+
+    export constexpr auto const
+	LIST_FORMAT_LEFT		    = wxLIST_FORMAT_LEFT,
+	LIST_FORMAT_RIGHT		    = wxLIST_FORMAT_RIGHT,
+	LIST_FORMAT_CENTRE		    = wxLIST_FORMAT_CENTRE,
+	LIST_FORMAT_CENTER		    = wxLIST_FORMAT_CENTER;
+
+    export constexpr auto const
+    	LIST_AUTOSIZE			    = wxLIST_AUTOSIZE,
+	LIST_AUTOSIZE_USEHEADER		    = wxLIST_AUTOSIZE_USEHEADER;
 }

@@ -2,9 +2,9 @@
 
 #include <wx/gdicmn.h>
 
-export module local.wx.Core:DataStruct;
+export module wx.Core:DataStruct;
 
-namespace local::wx
+namespace wx
 {
     export using Size		= wxSize;
     export using Point		= wxPoint;

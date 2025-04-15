@@ -4,12 +4,13 @@
 #include <wx/wrapsizer.h>
 #include <wx/gbsizer.h>
 
-export module local.wx.Core:Layout;
+export module wx.Core:Layout;
 
-namespace local::wx
+namespace wx
 {
     export using SizerFlags		= wxSizerFlags;
     export using Sizer			= wxSizer;
+    export using SizerItem		= wxSizerItem;
     export using BoxSizer		= wxBoxSizer;
     export using StaticBoxSizer		= wxStaticBoxSizer;
     export using StdDialogButtonSizer	= wxStdDialogButtonSizer;
@@ -17,6 +18,9 @@ namespace local::wx
     export using GridSizer		= wxGridSizer;
     export using FlegGridSizer		= wxFlexGridSizer;
     export using GridBagSizer		= wxGridBagSizer;
+    export using GBSizerItem		= wxGBSizerItem;
+    export using GBPosition		= wxGBPosition;
+    export using GBSpan			= wxGBSpan;
 
     export constexpr auto const
 	TOP				= wxTOP,
@@ -28,6 +32,10 @@ namespace local::wx
     export constexpr auto const
 	EXPAND				= wxEXPAND,
 	SHAPED				= wxSHAPED;
+
+    export constexpr auto const
+	HORIZONTAL			= wxHORIZONTAL,
+	VERTICAL			= wxVERTICAL;
 
     export constexpr auto const
 	FIXED_MINSIZE			= wxFIXED_MINSIZE,
@@ -44,4 +52,7 @@ namespace local::wx
 	ALIGN_CENTRE_VERTICAL		= wxALIGN_CENTRE_VERTICAL,
 	ALIGN_CENTER_HORIZONTAL		= wxALIGN_CENTER_HORIZONTAL,
 	ALIGN_CENTRE_HORIZONTAL		= wxALIGN_CENTRE_HORIZONTAL;
+
+    export auto const
+	&DefaultSpan			= wxDefaultSpan;
 }

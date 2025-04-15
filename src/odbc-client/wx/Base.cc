@@ -11,7 +11,7 @@
 #include <wx/init.h>
 #include <wx/cmdline.h>
 
-export module local.wx.Base;
+export module wx.Base;
 
 #if !defined __INTELLISENSE__
 import std;
@@ -19,7 +19,7 @@ import std;
 export import :DataStruct;
 #endif
 
-namespace local::wx
+namespace wx
 {
     export using List		    = wxList;
     export using Node		    = wxNode;
