@@ -122,7 +122,7 @@ OdbcFrame::OdbcFrame()
 
     auto menuFile = unique_ptr<Menu> { new Menu() };
 
-    menuFile->Append(ID_Connect, "Connect...", "Connect to selected ODBC driver or Data Source Name");
+    menuFile->Append(ID_Connect, "Connect...", "Connect to selected ODBC driver, Data Source Name or connection string");
     menuFile->AppendSeparator();
     menuFile->Append(ID_EXIT);
 
@@ -173,7 +173,7 @@ auto OdbcFrame::PopulatePanel() -> void
     auto driverList = new ListBox(panel, ID_DriverList);
     odbc::Environment env;
 
-    for (auto const &[description, attributes] : env.drivers())
+    for (auto const &[description, attributes]: env.drivers())
 	driverList->Append(description);
 
     auto userDsnList = new ListView(panel, ID_UserDSNList);
@@ -182,7 +182,7 @@ auto OdbcFrame::PopulatePanel() -> void
 
     int i = 0;
 
-    for (auto const &[dsnName, driverName] : env.userDSNs())
+    for (auto const &[dsnName, driverName]: env.userDSNs())
     {
 	auto nameItem = ListItem { }, driverItem = ListItem { };
 
@@ -204,7 +204,7 @@ auto OdbcFrame::PopulatePanel() -> void
 
     i = 0;
 
-    for (auto const &[dsnName, driverName] : env.systemDSNs())
+    for (auto const &[dsnName, driverName]: env.systemDSNs())
     {
 	auto nameItem = ListItem { }, driverItem = ListItem { };
 
@@ -228,7 +228,7 @@ auto OdbcFrame::PopulatePanel() -> void
     gridBag->Add(new StaticText(panel, ID_ANY, "System Data Source Names (DSNs)"), GBPosition { 3, 4 }, DefaultSpan, TOP | RIGHT, 10);
 
     gridBag->Add(driverList,	GBPosition { 1, 0 }, GBSpan { 4, 1 }, EXPAND | LEFT, 10);
-    gridBag->Add(connectionString, GBPosition { 1, 2 }, GBSpan { 4, 1 },EXPAND);
+    gridBag->Add(connectionString, GBPosition { 1, 2 }, GBSpan { 4, 1 }, EXPAND);
     gridBag->Add(userDsnList,	GBPosition { 1, 4 }, DefaultSpan, EXPAND | RIGHT, 10);
     gridBag->Add(systemDsnList, GBPosition { 4, 4 }, DefaultSpan, EXPAND | RIGHT, 10);
 
@@ -254,7 +254,7 @@ auto OdbcFrame::PopulatePanel() -> void
 
     auto systemDsnButtonSizer = new BoxSizer(HORIZONTAL);
 
-    systemDsnButtonSizer->Add(new Button(panel, ID_ManageSystemDSNs, "Manage DSNs"));
+    systemDsnButtonSizer->Add(new Button(panel, ID_ManageSystemDSNs, "Manage DSNs..."));
     systemDsnButtonSizer->AddSpacer(10);
     systemDsnButtonSizer->Add(new Button(panel, ID_ConfigureSystemDSN, "Configure DSN..."));
     systemDsnButtonSizer->AddSpacer(10);
