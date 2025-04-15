@@ -178,7 +178,7 @@ auto OdbcFrame::PopulatePanel() -> void
 
     auto userDsnList = new ListView(panel, ID_UserDSNList);
     userDsnList->InsertColumn(0, "DSN", LIST_FORMAT_LEFT | LIST_AUTOSIZE, 150);
-    userDsnList->InsertColumn(1, "Drver", LIST_FORMAT_LEFT | LIST_AUTOSIZE, 250);
+    userDsnList->InsertColumn(1, "Driver", LIST_FORMAT_LEFT | LIST_AUTOSIZE, 250);
 
     int i = 0;
 
