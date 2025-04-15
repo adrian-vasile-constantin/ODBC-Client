@@ -283,9 +283,9 @@ auto OdbcFrame::PopulatePanel() -> void
 
     gridBag->Add(systemDsnTransferSizer, GBPosition { 4, 3 }, DefaultSpan, ALIGN_CENTER_HORIZONTAL | ALIGN_CENTER_VERTICAL);
 
-    gridBag->AddGrowableCol(0, 1);
-    gridBag->AddGrowableCol(2, 1);
-    gridBag->AddGrowableCol(4, 1);
+    gridBag->AddGrowableCol(0);
+    gridBag->AddGrowableCol(2);
+    gridBag->AddGrowableCol(4);
 
     gridBag->AddGrowableRow(1, 1);
     gridBag->AddGrowableRow(4, 1);
