@@ -27,6 +27,8 @@ namespace odbc
     using sql::SQL_OV_ODBC3;
     using sql::SQL_OV_ODBC3_80;
     using sql::SQLSetEnvAttr;
+    using sql::SQL_FETCH_NEXT;
+    using sql::SQL_FETCH_FIRST;
     using sql::SQL_FETCH_FIRST_USER;
     using sql::SQL_FETCH_FIRST_SYSTEM;
 #endif
@@ -35,9 +37,9 @@ namespace odbc
     {
     protected:
 	friend class Connection;
-	void FetchDriver(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &driverInfo);
-	void FetchDSN(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &dsn);
-	auto DataSourceNames(SQLUSMALLINT direction) -> std::list<std::pair<std::string, std::string>>;
+	auto FetchDriver(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &driverInfo) -> void;
+	auto FetchDSN(SQLUSMALLINT direction, std::pair<sqlstring, sqlstring> &dsn) -> void;
+	auto DataSourceNames(SQLUSMALLINT direction) -> std::list<std::pair<std::string, std::string>> ;
 
     public:
 	enum class Version: unsigned long
@@ -52,14 +54,15 @@ namespace odbc
 	auto drivers() -> std::map<std::string, std::map<std::string, std::string>>;
 	auto userDSNs() -> std::list<std::pair<std::string, std::string>>;
 	auto systemDSNs() -> std::list<std::pair<std::string, std::string>>;
+	auto DSNs() -> std::list<std::pair<std::string, std::string>>;
 
-	SQLHENV nativeHandle() const;
+	auto nativeHandle() const -> SQLHENV;
 
 	using Handle::diagnosticRecord;
 	using Handle::diagnosticRecords;
 
 	template <typename StringT, typename CharT>
-	    static std::map<std::string, std::string> splitAttributes(StringT const &inputLine, CharT separator = CharT { ';' });
+	    static auto splitAttributes(StringT const &inputLine, CharT separator = CharT { ';' }) -> std::map<std::string, std::string>;
     };
 }
 
@@ -74,7 +77,7 @@ inline odbc::Environment::Environment(Version ver)
 {
 }
 
-inline SQLHENV odbc::Environment::nativeHandle() const
+inline auto odbc::Environment::nativeHandle() const -> SQLHENV
 {
     return sqlHandle;
 }
@@ -89,8 +92,13 @@ inline auto odbc::Environment::systemDSNs() -> std::list<std::pair<std::string, 
     return DataSourceNames(SQL_FETCH_FIRST_SYSTEM);
 }
 
+inline auto odbc::Environment::DSNs() -> std::list<std::pair<std::string, std::string>>
+{
+    return DataSourceNames(SQL_FETCH_FIRST);
+}
+
 template<typename StringT, typename CharT>
-    std::map<std::string, std::string> odbc::Environment::splitAttributes(StringT const &attributes, CharT separator)
+    auto odbc::Environment::splitAttributes(StringT const &attributes, CharT separator) -> std::map<std::string, std::string>
 {
     using std::string;
     auto it = attributes.begin();
@@ -147,7 +155,7 @@ using sql::SQLDrivers;
 using sql::SQLDataSources;
 #endif
 
-void odbc::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &driverInfo)
+auto odbc::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &driverInfo) -> void
 {
     auto descLen = SQLSMALLINT { 0 }, attrLen = SQLSMALLINT { 0 };
 
@@ -179,7 +187,7 @@ void odbc::Environment::FetchDriver(SQLUSMALLINT direction, pair<sqlstring, sqls
     }
 }
 
-void odbc::Environment::FetchDSN(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &dsn)
+auto odbc::Environment::FetchDSN(SQLUSMALLINT direction, pair<sqlstring, sqlstring> &dsn) -> void
 {
     auto nameLen = SQLSMALLINT { 0 }, descLen = SQLSMALLINT { 0 };
 

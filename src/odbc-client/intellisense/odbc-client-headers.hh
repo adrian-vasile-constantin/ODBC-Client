@@ -38,6 +38,8 @@
 #include <wx/init.h>
 #include <wx/cmdline.h>
 
+#include <wx/dc.h>
+#include <wx/dcclient.h>
 #include <wx/gdicmn.h>
 #include <wx/defs.h>
 #include <wx/event.h>
@@ -113,6 +115,12 @@
 
 namespace wx
 {
+    export using DC	    = wxDC;
+    export using WindowDC   = wxWindowDC;
+    export using ClientDC   = wxClientDC;
+    export using PaintDC    = wxPaintDC;
+
+
     export using Position	= wxPosition;
     export using DateTime	= wxDateTime;
     export using TimeSpan	= wxTimeSpan;
@@ -321,7 +329,7 @@ namespace wx
     export auto const PRINT_QUALITY_LOW        	  = wxPRINT_QUALITY_LOW;
     export auto const PRINT_QUALITY_DRAFT      	  = wxPRINT_QUALITY_DRAFT;
 
-
+    export using Coord	    = wxCoord;
     export using StandardID = wxStandardID;
 
     export constexpr auto const
@@ -471,6 +479,7 @@ namespace wx
     export using FullScreenEvent = wxFullScreenEvent;
     export using EraseEvent	 = wxEraseEvent;
     export using FocusEvent	 = wxFocusEvent;
+    export using SizeEvent	 = wxSizeEvent;
 
     export auto const &EVT_ACTIVATE                   = wxEVT_ACTIVATE;
     export auto const &EVT_ACTIVATE_APP               = wxEVT_ACTIVATE_APP;

@@ -4,10 +4,13 @@
 #include "../odbc++/intellisense/odbcxx_project_headers.hh"
 
 #include <wx/artprov.h>
+#include <wx/listctrl.h>
 
 export module OdbcFrame;
 
 #if !defined MSVC_INTELLISENSE
+import std;
+import wx.Base;
 import wx.Core;
 #endif
 
@@ -17,11 +20,18 @@ public:
     OdbcFrame();
 
 private:
+    std::unique_ptr<wx::Panel> panel;
+    std::unique_ptr<wx::ListCtrl> driverList;
+    std::unique_ptr<wx::ListCtrl> connectionString;
+    std::unique_ptr<wx::ListView> userDsnList;
+    std::unique_ptr<wx::ListView> systemDsnList;
+
     auto PopulatePanel() -> void;
 
     auto OnConnect(wx::CommandEvent &event) -> void;
     auto OnExit(wx::CommandEvent &event) -> void;
     auto OnAbout(wx::CommandEvent &event) -> void;
+    auto OnResize(wx::SizeEvent &event) -> void;
 };
 
 module :private;
@@ -40,6 +50,7 @@ using wx::ID_EXIT;
 using wx::ID_CANCEL;
 using wx::ID_ANY;
 using wx::EVT_MENU;
+using wx::EVT_SIZE;
 using wx::ICON_INFORMATION;
 using wx::EXPAND;
 using wx::ALIGN_RIGHT;
@@ -51,12 +62,18 @@ using wx::TOP;
 using wx::BOTTOM;
 using wx::LEFT;
 using wx::RIGHT;
+using wx::String;
+using wx::Coord;
+using wx::PaintDC;
+using wx::ClientDC;
 using wx::Size;
 using wx::DefaultPosition;
 using wx::DefaultSize;
 using wx::CommandEvent;
+using wx::SizeEvent;
 using wx::Menu;
 using wx::MenuBar;
+using wx::Frame;
 using wx::Panel;
 using wx::Button;
 using wx::BitmapButton;
@@ -83,6 +100,7 @@ using wx::LC_SINGLE_SEL;
 using wx::LC_EDIT_LABELS;
 using wx::LC_ALIGN_LEFT;
 using wx::LC_ALIGN_TOP;
+using wx::LC_VIRTUAL;
 using wx::LC_HRULES;
 using wx::LC_VRULES;
 using wx::LIST_FORMAT_LEFT;
@@ -111,10 +129,10 @@ enum
     ID_DeleteSystemDSN
 };
 
-static const Size defaultSize { 800, 700 };
+static const Size defaultSize { 800, 550 };
 
 OdbcFrame::OdbcFrame()
-    : wxFrame(nullptr, ID_ANY, "Connection - ODBC Client", DefaultPosition, defaultSize)
+    : Frame(nullptr, ID_ANY, "Connection - ODBC Client", DefaultPosition, defaultSize)
 {
     // Resize to fit the display if necessary
     if (Display display; GetSize().GetHeight() > display.GetClientArea().GetHeight() || GetSize().GetWidth() > display.GetClientArea().GetWidth())
@@ -139,11 +157,12 @@ OdbcFrame::OdbcFrame()
     SetStatusText("Create connection string or select existing Data Source Name (DSN)");
 
     PopulatePanel();
-    PersistentRegisterAndRestore(this, "Connection Window");
+    // PersistentRegisterAndRestore(this, "Connection Window");
 
     Bind(EVT_MENU, &OdbcFrame::OnConnect, this, ID_Connect);
     Bind(EVT_MENU, &OdbcFrame::OnExit, this, ID_EXIT);
     Bind(EVT_MENU, &OdbcFrame::OnAbout, this, ID_ABOUT);
+    // Bind(EVT_SIZE, &OdbcFrame::OnResize, this);
 }
 
 auto OdbcFrame::OnExit(CommandEvent &event) -> void
@@ -161,26 +180,73 @@ auto OdbcFrame::OnAbout(CommandEvent &event) -> void
     MessageBox("ODBC Client", "ODBC Client", OK | ICON_INFORMATION, this);
 }
 
+using std::vector;
+using std::unique_ptr;
+using namespace std::literals::string_literals;
+
+auto OdbcFrame::OnResize(SizeEvent &sizeEvent) -> void
+{
+    panel->SetSize(GetClientSize());
+
+    for (auto *dsnList: { &userDsnList, &systemDsnList })
+    {
+	auto  clientDC { ClientDC { dsnList->get() } };
+
+	auto colCount { dsnList->get()->GetColumnCount() };
+	auto colWidth { vector<int> { colCount, 0 } };
+	auto rowCount { dsnList->get()->GetItemCount() };
+
+	for (auto col = 0u; col < colCount; col++)
+	    for (int row = 0u; row < rowCount; row++)
+	    {
+		auto text { dsnList->get()->GetItemText(row, col) };
+		auto font { dsnList->get()->GetItemFont(row) };
+
+		Coord w, h;
+
+		clientDC.GetTextExtent(text, &w, &h, nullptr, nullptr, font.IsOk() ? &font : nullptr);
+
+		if (w > colWidth[col])
+		    colWidth[col] = w;
+	    }
+
+	for (int i = 0u; i < colWidth.size(); i++)
+	{
+	    if (dsnList->get()->GetColumnWidth(i) != colWidth[i] * 11 / 10)
+		dsnList->get()->SetColumnWidth(i, dsnList->get()->FromPhys(colWidth[i] * 11 / 10));
+	}
+    }
+}
+
 auto OdbcFrame::PopulatePanel() -> void
 {
-    auto panel = new Panel(this);
-    auto connectionString = new ListCtrl(panel, ID_ConnectString, DefaultPosition, DefaultSize, LC_REPORT | LC_SINGLE_SEL | LC_EDIT_LABELS | LC_ALIGN_LEFT | LC_HRULES | LC_VRULES);
-    connectionString->InsertColumn(0, "Name", LIST_FORMAT_LEFT, 150);
-    connectionString->InsertColumn(1, "Value", LIST_FORMAT_LEFT, 150);
+    panel.reset(new Panel(this));
+    connectionString.reset(new ListCtrl(panel.get(), ID_ConnectString, DefaultPosition, DefaultSize, LC_REPORT | LC_SINGLE_SEL | LC_EDIT_LABELS | LC_ALIGN_LEFT | LC_HRULES | LC_VRULES));
+    connectionString->InsertColumn(0, "Name", LIST_FORMAT_LEFT);
+    connectionString->InsertColumn(1, "Value", LIST_FORMAT_LEFT);
     connectionString->InsertItem(0, "");
     connectionString->SetItem(0, 1, "");
+    connectionString->SetWindowStyle(connectionString->GetWindowStyle() | LC_VIRTUAL);
+    connectionString->EnableAlternateRowColours();
 
-    auto driverList = new ListBox(panel, ID_DriverList);
+    driverList.reset(new ListCtrl(panel.get(), ID_DriverList, DefaultPosition, DefaultSize, LC_REPORT | LC_SINGLE_SEL | LC_ALIGN_LEFT | LC_VRULES));
+    driverList->InsertColumn(0, "Driver", LIST_FORMAT_LEFT);
     odbc::Environment env;
 
-    for (auto const &[description, attributes]: env.drivers())
-	driverList->Append(description);
-
-    auto userDsnList = new ListView(panel, ID_UserDSNList);
-    userDsnList->InsertColumn(0, "DSN", LIST_FORMAT_LEFT | LIST_AUTOSIZE, 150);
-    userDsnList->InsertColumn(1, "Driver", LIST_FORMAT_LEFT | LIST_AUTOSIZE, 250);
-
     int i = 0;
+
+    for (auto const &[description, attributes] : env.drivers())
+	driverList->InsertItem(i++, description);
+
+    driverList->SetColumnWidth(0, LIST_AUTOSIZE);
+    driverList->SetWindowStyle(driverList->GetWindowStyle() | LC_VIRTUAL);
+    driverList->EnableAlternateRowColours();
+
+    userDsnList.reset(new ListView(panel.get(), ID_UserDSNList));
+    userDsnList->InsertColumn(0, "DSN", LIST_FORMAT_LEFT);
+    userDsnList->InsertColumn(1, "Driver", LIST_FORMAT_LEFT);
+
+    i = 0;
 
     for (auto const &[dsnName, driverName]: env.userDSNs())
     {
@@ -198,9 +264,15 @@ auto OdbcFrame::PopulatePanel() -> void
 	userDsnList->SetItem(driverItem);
     }
 
-    auto systemDsnList = new ListView(panel, ID_SystemDSNList);
-    systemDsnList->InsertColumn(0, "DSN", LIST_FORMAT_LEFT | LIST_AUTOSIZE, 150);
-    systemDsnList->InsertColumn(1, "Driver", LIST_FORMAT_LEFT | LIST_AUTOSIZE, 250);
+    userDsnList->SetColumnWidth(0, LIST_AUTOSIZE);
+    userDsnList->SetColumnWidth(1, LIST_AUTOSIZE);
+    userDsnList->SetWindowStyle(userDsnList->GetWindowStyle() | LC_VIRTUAL);
+    userDsnList->EnableAlternateRowColours();
+
+
+    systemDsnList.reset(new ListView(panel.get(), ID_SystemDSNList));
+    systemDsnList->InsertColumn(0, "DSN", LIST_FORMAT_LEFT);
+    systemDsnList->InsertColumn(1, "Driver", LIST_FORMAT_LEFT);
 
     i = 0;
 
@@ -220,72 +292,82 @@ auto OdbcFrame::PopulatePanel() -> void
 	systemDsnList->SetItem(driverItem);
     }
 
-    auto gridBag = new GridBagSizer(10, 10);
+    systemDsnList->SetColumnWidth(0, LIST_AUTOSIZE);
+    systemDsnList->SetColumnWidth(1, LIST_AUTOSIZE);
+    systemDsnList->SetWindowStyle(systemDsnList->GetWindowStyle() | LC_VIRTUAL);
+    systemDsnList->EnableAlternateRowColours();
 
-    gridBag->Add(new StaticText(panel, ID_ANY, "Installed ODBC Drivers"), GBPosition { }, DefaultSpan, TOP | LEFT, 10);
-    gridBag->Add(new StaticText(panel, ID_ANY, "Connection string fields:"), GBPosition { 0, 2 }, DefaultSpan, TOP, 10);
-    gridBag->Add(new StaticText(panel, ID_ANY, "User Data Source Names (DSNs)"), GBPosition { 0, 4 }, DefaultSpan, TOP, 10);
-    gridBag->Add(new StaticText(panel, ID_ANY, "System Data Source Names (DSNs)"), GBPosition { 3, 4 }, DefaultSpan, TOP | RIGHT, 10);
+    auto defaultBorder = 2 * SizerFlags::GetDefaultBorder();
 
-    gridBag->Add(driverList,	GBPosition { 1, 0 }, GBSpan { 4, 1 }, EXPAND | LEFT, 10);
-    gridBag->Add(connectionString, GBPosition { 1, 2 }, GBSpan { 4, 1 }, EXPAND);
-    gridBag->Add(userDsnList,	GBPosition { 1, 4 }, DefaultSpan, EXPAND | RIGHT, 10);
-    gridBag->Add(systemDsnList, GBPosition { 4, 4 }, DefaultSpan, EXPAND | RIGHT, 10);
+    auto gridBag = new GridBagSizer(defaultBorder, defaultBorder);
 
-    gridBag->Add(new Button(panel, ID_BrowseConnect, "BrowseConnect..."), GBPosition { 5, 0 }, DefaultSpan, ALIGN_RIGHT);
+    gridBag->Add(new StaticText(panel.get(), ID_ANY, "Installed ODBC Drivers"), GBPosition { }, DefaultSpan, TOP | LEFT, defaultBorder);
+    gridBag->Add(new StaticText(panel.get(), ID_ANY, "Connection string fields:"), GBPosition { 0, 2 }, DefaultSpan, TOP, defaultBorder);
+    gridBag->Add(new StaticText(panel.get(), ID_ANY, "User Data Source Names (DSNs)"), GBPosition { 0, 4 }, DefaultSpan, TOP, defaultBorder);
+    gridBag->Add(new StaticText(panel.get(), ID_ANY, "System Data Source Names (DSNs)"), GBPosition { 3, 4 }, DefaultSpan, TOP | RIGHT, defaultBorder);
+
+    gridBag->Add(driverList.get(), GBPosition { 1, 0 }, GBSpan { 4, 1 }, EXPAND | LEFT, defaultBorder);
+    gridBag->Add(connectionString.get(), GBPosition { 1, 2 }, GBSpan { 4, 1 }, EXPAND);
+    gridBag->Add(userDsnList.get(), GBPosition { 1, 4 }, DefaultSpan, EXPAND | RIGHT, defaultBorder);
+    gridBag->Add(systemDsnList.get(), GBPosition { 4, 4 }, DefaultSpan, EXPAND | RIGHT, defaultBorder);
+
+    gridBag->Add(new Button(panel.get(), ID_BrowseConnect, "BrowseConnect..."), GBPosition { 5, 0 }, DefaultSpan, ALIGN_RIGHT);
 
     auto dialogButtonSizer = new StdDialogButtonSizer();
 
-    dialogButtonSizer->Add(new Button(panel, ID_OK,	"Connect"));
+    dialogButtonSizer->Add(new Button(panel.get(), ID_OK, "Connect"));
     dialogButtonSizer->AddSpacer(10);
-    dialogButtonSizer->Add(new Button(panel, ID_CANCEL, "Cancel"));
+    dialogButtonSizer->Add(new Button(panel.get(), ID_CANCEL, "Cancel"));
 
-    gridBag->Add(dialogButtonSizer, GBPosition { 5, 2 }, DefaultSpan, ALIGN_RIGHT | BOTTOM, 10);
+    gridBag->Add(dialogButtonSizer, GBPosition { 5, 2 }, DefaultSpan, ALIGN_RIGHT | BOTTOM, defaultBorder);
 
     auto userDsnButtonSizer = new BoxSizer(HORIZONTAL);
 
-    userDsnButtonSizer->Add(new Button(panel, ID_ManageUserDSNs,   "Manage DSNs..."));
+    userDsnButtonSizer->Add(new Button(panel.get(), ID_ManageUserDSNs, "Manage DSNs..."));
     userDsnButtonSizer->AddSpacer(10);
-    userDsnButtonSizer->Add(new Button(panel, ID_ConfigureUserDSN, "Configure DSN..."));
+    userDsnButtonSizer->Add(new Button(panel.get(), ID_ConfigureUserDSN, "Configure DSN..."));
     userDsnButtonSizer->AddSpacer(10);
-    userDsnButtonSizer->Add(new Button(panel, ID_DeleteUserDSN,	   "Remove DSN..."));
+    userDsnButtonSizer->Add(new Button(panel.get(), ID_DeleteUserDSN, "Remove DSN..."));
 
-    gridBag->Add(userDsnButtonSizer, GBPosition { 2, 4 }, DefaultSpan, ALIGN_RIGHT | RIGHT, 10);
+    gridBag->Add(userDsnButtonSizer, GBPosition { 2, 4 }, DefaultSpan, ALIGN_RIGHT | RIGHT, defaultBorder);
 
     auto systemDsnButtonSizer = new BoxSizer(HORIZONTAL);
 
-    systemDsnButtonSizer->Add(new Button(panel, ID_ManageSystemDSNs, "Manage DSNs..."));
+    systemDsnButtonSizer->Add(new Button(panel.get(), ID_ManageSystemDSNs, "Manage DSNs..."));
     systemDsnButtonSizer->AddSpacer(10);
-    systemDsnButtonSizer->Add(new Button(panel, ID_ConfigureSystemDSN, "Configure DSN..."));
+    systemDsnButtonSizer->Add(new Button(panel.get(), ID_ConfigureSystemDSN, "Configure DSN..."));
     systemDsnButtonSizer->AddSpacer(10);
-    systemDsnButtonSizer->Add(new Button(panel, ID_DeleteSystemDSN, "Remove DSN..."));
+    systemDsnButtonSizer->Add(new Button(panel.get(), ID_DeleteSystemDSN, "Remove DSN..."));
 
-    gridBag->Add(systemDsnButtonSizer, GBPosition { 5, 4 }, DefaultSpan, ALIGN_RIGHT | RIGHT | BOTTOM, 10);
+    gridBag->Add(systemDsnButtonSizer, GBPosition { 5, 4 }, DefaultSpan, ALIGN_RIGHT | RIGHT | BOTTOM, defaultBorder);
+
+    auto goForwardBitmap { ArtProvider::GetBitmap(wxART_GO_FORWARD, wxART_BUTTON) };
+    auto goBackBitmap { ArtProvider::GetBitmap(wxART_GO_BACK, wxART_BUTTON) };
 
     auto driverTransferSizer = new BoxSizer(VERTICAL);
-    driverTransferSizer->Add(new BitmapButton(panel, ID_AddDriver, ArtProvider::GetBitmap(wxART_GO_FORWARD, wxART_BUTTON)));
+    driverTransferSizer->Add(new BitmapButton(panel.get(), ID_AddDriver, goForwardBitmap, DefaultPosition, Size { goForwardBitmap.GetWidth() * 3, goForwardBitmap.GetHeight() }));
     driverTransferSizer->AddSpacer(10);
-    driverTransferSizer->Add(new BitmapButton(panel, ID_RemoveDriver, ArtProvider::GetBitmap(wxART_GO_BACK, wxART_BUTTON)));
+    driverTransferSizer->Add(new BitmapButton(panel.get(), ID_RemoveDriver, goBackBitmap, DefaultPosition, Size { goBackBitmap.GetWidth() * 3, goBackBitmap.GetHeight() }));
 
     gridBag->Add(driverTransferSizer, GBPosition { 1, 1 }, DefaultSpan, ALIGN_CENTER_HORIZONTAL | ALIGN_CENTER_VERTICAL);
 
     auto userDsnTransferSizer = new BoxSizer(VERTICAL);
-    userDsnTransferSizer->Add(new BitmapButton(panel, ID_AddUserDSN, ArtProvider::GetBitmap(wxART_GO_BACK, wxART_BUTTON)));
+    userDsnTransferSizer->Add(new BitmapButton(panel.get(), ID_AddUserDSN, goBackBitmap, DefaultPosition, Size { goBackBitmap.GetWidth() * 3, goBackBitmap.GetHeight() }));
     userDsnTransferSizer->AddSpacer(10);
-    userDsnTransferSizer->Add(new BitmapButton(panel, ID_RemoveUserDSN, ArtProvider::GetBitmap(wxART_GO_FORWARD, wxART_BUTTON)));
+    userDsnTransferSizer->Add(new BitmapButton(panel.get(), ID_RemoveUserDSN, goForwardBitmap, DefaultPosition, Size { goForwardBitmap.GetWidth() * 3, goForwardBitmap.GetHeight() }));
 
     gridBag->Add(userDsnTransferSizer, GBPosition { 1, 3 }, DefaultSpan, ALIGN_CENTER_HORIZONTAL | ALIGN_CENTER_VERTICAL);
 
     auto systemDsnTransferSizer = new BoxSizer(VERTICAL);
-    systemDsnTransferSizer->Add(new BitmapButton(panel, ID_AddSystemDSN, ArtProvider::GetBitmap(wxART_GO_BACK, wxART_BUTTON)));
+    systemDsnTransferSizer->Add(new BitmapButton(panel.get(), ID_AddSystemDSN, goBackBitmap, DefaultPosition, Size { goBackBitmap.GetWidth() * 3, goBackBitmap.GetHeight() }));
     systemDsnTransferSizer->AddSpacer(10);
-    systemDsnTransferSizer->Add(new BitmapButton(panel, ID_RemoveSystemDSN, ArtProvider::GetBitmap(wxART_GO_FORWARD, wxART_BUTTON)));
+    systemDsnTransferSizer->Add(new BitmapButton(panel.get(), ID_RemoveSystemDSN, goForwardBitmap, DefaultPosition, Size { goForwardBitmap.GetWidth() * 3, goForwardBitmap.GetHeight() }));
 
     gridBag->Add(systemDsnTransferSizer, GBPosition { 4, 3 }, DefaultSpan, ALIGN_CENTER_HORIZONTAL | ALIGN_CENTER_VERTICAL);
 
-    gridBag->AddGrowableCol(0);
-    gridBag->AddGrowableCol(2);
-    gridBag->AddGrowableCol(4);
+    gridBag->AddGrowableCol(0, 1);
+    gridBag->AddGrowableCol(2, 1);
+    gridBag->AddGrowableCol(4, 1);
 
     gridBag->AddGrowableRow(1, 1);
     gridBag->AddGrowableRow(4, 1);

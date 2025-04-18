@@ -32,6 +32,7 @@ import wx.Base;
 export import :DataStruct;
 export import :Defs;
 export import :GDI;
+export import :DeviceContext;
 export import :Event;
 export import :Controls;
 export import :Layout;

@@ -15,6 +15,7 @@ namespace wx
     export using FullScreenEvent = wxFullScreenEvent;
     export using EraseEvent	 = wxEraseEvent;
     export using FocusEvent	 = wxFocusEvent;
+    export using SizeEvent	 = wxSizeEvent;
 
     export auto const &EVT_ACTIVATE                   = wxEVT_ACTIVATE;
     export auto const &EVT_ACTIVATE_APP               = wxEVT_ACTIVATE_APP;

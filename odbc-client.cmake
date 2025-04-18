@@ -5,6 +5,7 @@ set(ODBC_CLIENT_SOURCES
 	"src/odbc-client/wx/Base.cc"
 	"src/odbc-client/wx/Core.DataStruct.cc"
 	"src/odbc-client/wx/Core.Defs.cc"
+	"src/odbc-client/wx/Core.DeviceContext.cc"
 	"src/odbc-client/wx/Core.GDI.cc"
 	"src/odbc-client/wx/Core.Event.cc"
 	"src/odbc-client/wx/Core.Controls.cc"

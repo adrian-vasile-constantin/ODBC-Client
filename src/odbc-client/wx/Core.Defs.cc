@@ -130,7 +130,7 @@ namespace wx
     export auto const PRINT_QUALITY_LOW        	  = wxPRINT_QUALITY_LOW;
     export auto const PRINT_QUALITY_DRAFT      	  = wxPRINT_QUALITY_DRAFT;
 
-
+    export using Coord	    = wxCoord;
     export using StandardID = wxStandardID;
 
     export constexpr auto const

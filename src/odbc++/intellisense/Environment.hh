@@ -32,6 +32,7 @@ namespace odbc
 	auto drivers() -> std::map<std::string, std::map<std::string, std::string>>;
 	auto userDSNs() -> std::list<std::pair<std::string, std::string>>;
 	auto systemDSNs() -> std::list<std::pair<std::string, std::string>>;
+	auto DSNs() -> std::list<std::pair<std::string, std::string>>;
 
 	SQLHENV nativeHandle() const;
 
