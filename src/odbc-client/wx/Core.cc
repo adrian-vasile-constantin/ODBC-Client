@@ -33,10 +33,12 @@ export import :DataStruct;
 export import :Defs;
 export import :GDI;
 export import :DeviceContext;
+export import :Miscellaneous;
 export import :Event;
 export import :Controls;
 export import :Layout;
 export import :TopLevel;
+export import :Grid;
 #endif
 
 namespace wx

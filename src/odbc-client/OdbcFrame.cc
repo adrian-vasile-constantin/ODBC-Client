@@ -3,9 +3,6 @@
 #include "intellisense/odbc-client-headers.hh"
 #include "../odbc++/intellisense/odbcxx_project_headers.hh"
 
-#include <wx/artprov.h>
-#include <wx/listctrl.h>
-
 export module OdbcFrame;
 
 #if !defined MSVC_INTELLISENSE
@@ -62,6 +59,10 @@ using wx::TOP;
 using wx::BOTTOM;
 using wx::LEFT;
 using wx::RIGHT;
+using wx::ART_GO_FORWARD;
+using wx::ART_GO_BACK;
+using wx::ART_BUTTON;
+using wx::ArtProvider;
 using wx::String;
 using wx::Coord;
 using wx::PaintDC;
@@ -157,7 +158,7 @@ OdbcFrame::OdbcFrame()
     SetStatusText("Create connection string or select existing Data Source Name (DSN)");
 
     PopulatePanel();
-    // PersistentRegisterAndRestore(this, "Connection Window");
+    PersistentRegisterAndRestore(this, "Connection Window");
 
     Bind(EVT_MENU, &OdbcFrame::OnConnect, this, ID_Connect);
     Bind(EVT_MENU, &OdbcFrame::OnExit, this, ID_EXIT);
@@ -341,8 +342,8 @@ auto OdbcFrame::PopulatePanel() -> void
 
     gridBag->Add(systemDsnButtonSizer, GBPosition { 5, 4 }, DefaultSpan, ALIGN_RIGHT | RIGHT | BOTTOM, defaultBorder);
 
-    auto goForwardBitmap { ArtProvider::GetBitmap(wxART_GO_FORWARD, wxART_BUTTON) };
-    auto goBackBitmap { ArtProvider::GetBitmap(wxART_GO_BACK, wxART_BUTTON) };
+    auto goForwardBitmap { ArtProvider::GetBitmap(ART_GO_FORWARD, ART_BUTTON) };
+    auto goBackBitmap { ArtProvider::GetBitmap(ART_GO_BACK, ART_BUTTON) };
 
     auto driverTransferSizer = new BoxSizer(VERTICAL);
     driverTransferSizer->Add(new BitmapButton(panel.get(), ID_AddDriver, goForwardBitmap, DefaultPosition, Size { goForwardBitmap.GetWidth() * 3, goForwardBitmap.GetHeight() }));

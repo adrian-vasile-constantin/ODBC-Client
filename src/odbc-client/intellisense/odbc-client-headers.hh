@@ -109,6 +109,11 @@
 
 #include <wx/artprov.h>
 
+#include <wx/grid.h>
+#include <wx/propgrid/propgridiface.h>
+#include <wx/propgrid/propgrid.h>
+
+
 // #include "intellisense/odbcxx_project_headers.hh"
 
 #include "OdbcFrame.hh"
@@ -988,6 +993,78 @@ namespace wx
     export using MenuBar	= wxMenuBar;
     export using ArtProvider	= wxArtProvider;
 
+    export constexpr auto const
+	ART_ERROR		= wxART_ERROR,
+	ART_QUESTION		= wxART_QUESTION,
+	ART_WARNING		= wxART_WARNING,
+	ART_INFORMATION		= wxART_INFORMATION,
+	ART_ADD_BOOKMARK	= wxART_ADD_BOOKMARK,
+	ART_DEL_BOOKMARK	= wxART_DEL_BOOKMARK,
+	ART_HELP_SIDE_PANEL	= wxART_HELP_SIDE_PANEL,
+	ART_HELP_SETTINGS	= wxART_HELP_SETTINGS,
+	ART_HELP_BOOK		= wxART_HELP_BOOK,
+	ART_HELP_FOLDER		= wxART_HELP_FOLDER,
+	ART_HELP_PAGE		= wxART_HELP_PAGE,
+	ART_GO_BACK		= wxART_GO_BACK,
+	ART_GO_FORWARD		= wxART_GO_FORWARD,
+	ART_GO_UP		= wxART_GO_UP,
+	ART_GO_DOWN		= wxART_GO_DOWN,
+	ART_GO_TO_PARENT	= wxART_GO_TO_PARENT,
+	ART_GO_HOME		= wxART_GO_HOME,
+	ART_GOTO_FIRST		= wxART_GOTO_FIRST;
+
+    export constexpr auto const
+	ART_GOTO_LAST		= wxART_GOTO_LAST,
+	ART_PRINT		= wxART_PRINT,
+	ART_HELP		= wxART_HELP,
+	ART_TIP			= wxART_TIP,
+	ART_REPORT_VIEW		= wxART_REPORT_VIEW,
+	ART_LIST_VIEW		= wxART_LIST_VIEW,
+	ART_NEW_DIR		= wxART_NEW_DIR,
+	ART_FOLDER		= wxART_FOLDER,
+	ART_FOLDER_OPEN		= wxART_FOLDER_OPEN,
+	ART_GO_DIR_UP		= wxART_GO_DIR_UP,
+	ART_EXECUTABLE_FILE	= wxART_EXECUTABLE_FILE,
+	ART_NORMAL_FILE		= wxART_NORMAL_FILE,
+	ART_TICK_MARK		= wxART_TICK_MARK,
+	ART_CROSS_MARK		= wxART_CROSS_MARK,
+	ART_MISSING_IMAGE	= wxART_MISSING_IMAGE,
+	ART_NEW			= wxART_NEW,
+	ART_FILE_OPEN		= wxART_FILE_OPEN,
+	ART_FILE_SAVE		= wxART_FILE_SAVE;
+
+    export constexpr auto const
+	ART_FILE_SAVE_AS	= wxART_FILE_SAVE_AS, 
+	ART_DELETE		= wxART_DELETE, 
+	ART_COPY		= wxART_COPY, 
+	ART_CUT			= wxART_CUT, 
+	ART_PASTE		= wxART_PASTE, 
+	ART_UNDO		= wxART_UNDO, 
+	ART_REDO		= wxART_REDO, 
+	ART_PLUS		= wxART_PLUS, 
+	ART_MINUS		= wxART_MINUS, 
+	ART_CLOSE		= wxART_CLOSE, 
+	ART_QUIT		= wxART_QUIT, 
+	ART_FIND		= wxART_FIND, 
+	ART_FIND_AND_REPLACE	= wxART_FIND_AND_REPLACE, 
+	ART_FULL_SCREEN		= wxART_FULL_SCREEN, 
+	ART_EDIT		= wxART_EDIT, 
+	ART_HARDDISK		= wxART_HARDDISK, 
+	ART_FLOPPY		= wxART_FLOPPY, 
+	ART_CDROM		= wxART_CDROM, 
+	ART_REMOVABLE		= wxART_REMOVABLE, 
+	ART_WX_LOGO		= wxART_WX_LOGO;
+
+    export constexpr auto const
+	ART_TOOLBAR		= wxART_TOOLBAR,
+	ART_MENU		= wxART_MENU,
+	ART_BUTTON		= wxART_BUTTON,
+	ART_FRAME_ICON		= wxART_FRAME_ICON,
+	ART_CMN_DIALOG		= wxART_CMN_DIALOG,
+	ART_HELP_BROWSER	= wxART_HELP_BROWSER,
+	ART_MESSAGE_BOX		= wxART_MESSAGE_BOX,
+	ART_OTHER		= wxART_OTHER;
+
     export using MessageDialog	= wxMessageDialog;
 
     using std::forward;
@@ -1029,6 +1106,93 @@ namespace wx
 
 	return wxPersistentRegisterAndRestore(forward<Args>(args)...);
     }
+
+    export using Grid			 = wxGrid;
+    export using GridCellRenderer	 = wxGridCellRenderer;
+    export using GridCellBoolRenderer	 = wxGridCellBoolRenderer;
+    export using GridCellFloatRenderer	 = wxGridCellFloatRenderer;
+    export using GridCellNumberRenderer  = wxGridCellNumberRenderer;
+    export using GridCellStringRenderer  = wxGridCellStringRenderer;
+    export using GridCellAutoWrapStringRenderer = wxGridCellAutoWrapStringRenderer;
+    export using GridCellDateRenderer	 = wxGridCellDateRenderer;
+    export using GridCellDatTimeRenderer = wxGridCellDateTimeRenderer;
+
+    export using GridCellEditor		 = wxGridCellEditor;
+    export using GridCellBoolEditor	 = wxGridCellBoolEditor;
+    export using GridCellChoiceEditor	 = wxGridCellChoiceEditor;
+    export using GridCellEnumEditor	 = wxGridCellEnumEditor;
+    export using GridCellFloatEditor	 = wxGridCellFloatEditor;
+    export using GridCellNumberEditor	 = wxGridCellNumberEditor;
+    export using GridCellTextEditor	 = wxGridCellTextEditor;
+    export using GridCellDateEditor	 = wxGridCellDateEditor;
+
+    export using GridFitMode		 = wxGridFitMode;
+    export using GridTableBase		 = wxGridTableBase;
+    export using GridCellAttr		 = wxGridCellAttr;
+
+    export using GridEvent		 = wxGridEvent;
+    export using GridSizeEvent		 = wxGridSizeEvent;
+    export using GridRangeSelectEvent	 = wxGridRangeSelectEvent;
+    export using GridEditorCreatedEvent  = wxGridEditorCreatedEvent;
+    export using GridUpdateLocker	 = wxGridUpdateLocker;
+
+    export using GridSelection		 = wxGridSelection;
+
+    export constexpr auto const
+	GridSelectCells			 = wxGridSelectCells,
+	GridSelectRows			 = wxGridSelectRows,
+	GridSelectColumns		 = wxGridSelectColumns,
+	GridSelectRowsOrColumns		 = wxGridSelectRowsOrColumns,
+	GridSelectNone			 = wxGridSelectNone;
+
+    export using PropertyGridInterfaace	 = wxPropertyGridInterface;
+    export using PropertyGrid		 = wxPropertyGrid;
+    export using PropertyGridPageState	 = wxPropertyGridPageState;
+    export using PropertyGridManager	 = wxPropertyGridManager;
+
+    export using PropertyGridEvent	 = wxPropertyGridEvent;
+    // export using PropertyGridValidationInfo = wxPropertyGridValidationInfo;
+    export using PropertyGridPopulator	 = wxPropertyGridPopulator;
+
+    export using PG_WINDOW_STYLES	 = wxPG_WINDOW_STYLES;
+
+    export constexpr auto const
+	PG_AUTO_SORT			 = wxPG_AUTO_SORT,
+	PG_HIDE_CATEGORIES		 = wxPG_HIDE_CATEGORIES,
+	PG_ALPHABETIC_MODE		 = wxPG_ALPHABETIC_MODE,
+	PG_BOLD_MODIFIED		 = wxPG_BOLD_MODIFIED,
+	PG_SPLITTER_AUTO_CENTER		 = wxPG_SPLITTER_AUTO_CENTER,
+	PG_TOOLTIPS			 = wxPG_TOOLTIPS,
+	PG_HIDE_MARGIN			 = wxPG_HIDE_MARGIN,
+	PG_STATIC_SPLITTER		 = wxPG_STATIC_SPLITTER,
+	PG_STATIC_LAYOUT		 = wxPG_STATIC_LAYOUT,
+	PG_LIMITED_EDITING		 = wxPG_LIMITED_EDITING,
+	PG_TOOLBAR			 = wxPG_TOOLBAR,
+	PG_DESCRIPTION			 = wxPG_DESCRIPTION,
+	PG_NO_INTERNAL_BORDER		 = wxPG_NO_INTERNAL_BORDER,
+	PG_WINDOW_STYLE_MASK		 = wxPG_WINDOW_STYLE_MASK;
+
+    export using PG_EX_WINDOW_STYLES	 = wxPG_EX_WINDOW_STYLES;
+
+    export constexpr auto const
+	PG_EX_INIT_NOCAT		    = wxPG_EX_INIT_NOCAT,
+	PG_EX_NO_FLAT_TOOLBAR		    = wxPG_EX_NO_FLAT_TOOLBAR,
+	PG_EX_MODE_BUTTONS		    = wxPG_EX_MODE_BUTTONS,
+	PG_EX_HELP_AS_TOOLTIPS		    = wxPG_EX_HELP_AS_TOOLTIPS,
+	PG_EX_NATIVE_DOUBLE_BUFFERING	    = wxPG_EX_NATIVE_DOUBLE_BUFFERING,
+	PG_EX_AUTO_UNSPECIFIED_VALUES	    = wxPG_EX_AUTO_UNSPECIFIED_VALUES,
+	PG_EX_WRITEONLY_BUILTIN_ATTRIBUTES  = wxPG_EX_WRITEONLY_BUILTIN_ATTRIBUTES,
+	PG_EX_HIDE_PAGE_BUTTONS		    = wxPG_EX_HIDE_PAGE_BUTTONS,
+	PG_EX_MULTIPLE_SELECTION	    = wxPG_EX_MULTIPLE_SELECTION,
+	PG_EX_ENABLE_TLP_TRACKING	    = wxPG_EX_ENABLE_TLP_TRACKING,
+	PG_EX_NO_TOOLBAR_DIVIDER	    = wxPG_EX_NO_TOOLBAR_DIVIDER,
+	PG_EX_TOOLBAR_SEPARATOR		    = wxPG_EX_TOOLBAR_SEPARATOR,
+	PG_EX_ALWAYS_ALLOW_FOCUS	    = wxPG_EX_ALWAYS_ALLOW_FOCUS,
+	PG_EX_WINDOW_PG_STYLE_MASK	    = wxPG_EX_WINDOW_PG_STYLE_MASK,
+	PG_EX_WINDOW_PGMAN_STYLE_MASK	    = wxPG_EX_WINDOW_PGMAN_STYLE_MASK;
+
+    export constexpr auto const
+	PG_EX_WINDOW_STYLE_MASK		    = wxPG_EX_WINDOW_STYLE_MASKK;
 }
 
 #endif	    // #if defined __INTELLISENSE__

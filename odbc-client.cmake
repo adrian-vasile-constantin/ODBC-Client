@@ -7,10 +7,12 @@ set(ODBC_CLIENT_SOURCES
 	"src/odbc-client/wx/Core.Defs.cc"
 	"src/odbc-client/wx/Core.DeviceContext.cc"
 	"src/odbc-client/wx/Core.GDI.cc"
+	"src/odbc-client/wx/Core.Miscellaneous.cc"
 	"src/odbc-client/wx/Core.Event.cc"
 	"src/odbc-client/wx/Core.Controls.cc"
 	"src/odbc-client/wx/Core.Layout.cc"
 	"src/odbc-client/wx/Core.TopLevel.cc"
+	"src/odbc-client/wx/Core.Grid.cc"
 	"src/odbc-client/wx/Core.cc"
 	"src/odbc-client/OdbcFrame.cc"
 	"src/odbc-client/OdbcApp.cc")
