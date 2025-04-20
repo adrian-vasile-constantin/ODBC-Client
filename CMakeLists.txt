@@ -1,6 +1,9 @@
 ﻿cmake_minimum_required(VERSION 3.31)
 
 include(cmake/LocalModulePath.cmake)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
 include(BuildType)
 include(SetupConan)
 

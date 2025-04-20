@@ -16,7 +16,7 @@ if (NOT CMAKE_PROJECT_TOP_LEVEL_INCLUDES)
     set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "libs/cmake-conan/conan_provider.cmake")
 endif()
 
-list(APPEND CONAN_INSTALL_ARGS "--build=missing" "-s" "compiler.cppstd=20" "--deployer=full_deploy" "--deployer-folder=deps")
+list(APPEND CONAN_INSTALL_ARGS "--build=missing" "-o" "*:shared=True" "-s" "compiler.cppstd=20" "--deployer=full_deploy" "--deployer-folder=deps")
 
 # set(CONAN_HOST_PROFILE "default;auto-cmake")
 # set(CONAN_BUILD_PROFILE "../path/to/profile/...")

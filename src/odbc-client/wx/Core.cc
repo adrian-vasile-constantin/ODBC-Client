@@ -39,6 +39,7 @@ export import :Controls;
 export import :Layout;
 export import :TopLevel;
 export import :Grid;
+export import :PropertyGrid;
 #endif
 
 namespace wx

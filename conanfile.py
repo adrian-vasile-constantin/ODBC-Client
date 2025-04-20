@@ -4,7 +4,7 @@ from conan.tools.cmake import cmake_layout
 
 class ODBC_Client(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    options = { 'shared': [ True, False ] }
+    options = { 'shared': [ True ] }
     default_options = { 'shared': True }
     generators = "CMakeDeps" #, "CMakeToolchain"
 
